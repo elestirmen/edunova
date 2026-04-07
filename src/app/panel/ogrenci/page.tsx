@@ -15,10 +15,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
-  Clock,
   ArrowRight,
+  Bell,
+  BookOpen,
+  Calendar,
   CheckCircle2,
+  Clock,
+  Flame,
+  MapPin,
   Sparkles,
+  Target,
+  Trophy,
+  User,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -89,9 +97,7 @@ export default async function StudentDashboard() {
   );
 
   const tomorrowDay = (() => {
-    const days = [
-      "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY",
-    ];
+    const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
     const todayIdx = days.indexOf(today);
     return days[(todayIdx + 1) % 7];
   })();
@@ -107,83 +113,63 @@ export default async function StudentDashboard() {
   const weeklyTarget = currentGoal?.targetPerWeek || 5;
   const weeklyProgress = currentGoal?.currentProgress || 0;
 
-  const { text: greetingText, emoji: greetingEmoji } = getGreeting();
-  const streakEmoji = getStreakEmoji(currentStreak);
-  const streakTitle = getStreakTitle(currentStreak);
+  const { text: greetingText } = getGreeting();
 
   return (
     <DashboardShell
-      title={`${greetingEmoji} ${greetingText}, ${session.user.firstName}!`}
+      title={`${greetingText}, ${session.user.firstName}!`}
       description={getMotivationalMessage(currentStreak)}
     >
       <div className="space-y-6">
-        {/* Hero Stats — Streak & Weekly Target */}
-        <div className="grid gap-4 sm:grid-cols-2">
-          {/* Streak Card — Big & Visual */}
+        {/* Hero Stats */}
+        <div className="grid gap-3 sm:grid-cols-2">
           <Card className="overflow-hidden border-0 gradient-streak text-white shadow-lg">
-            <CardContent className="relative p-6">
+            <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="mb-1 text-sm font-medium text-white/80">Günlük Seri</p>
+                  <p className="mb-1 text-sm font-medium text-white/80">Gunluk Seri</p>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-black">{currentStreak}</span>
-                    <span className="text-lg font-semibold text-white/80">gün</span>
+                    <span className="text-4xl font-black">{currentStreak}</span>
+                    <span className="text-sm font-medium text-white/70">gun</span>
                   </div>
-                  <p className="mt-2 text-sm font-medium text-white/90">
-                    {streakTitle}
-                  </p>
-                  <p className="text-xs text-white/70">
-                    En uzun seri: {longestStreak} gün
-                  </p>
+                  <p className="mt-1.5 text-sm font-medium text-white/90">{getStreakTitle(currentStreak)}</p>
+                  <p className="text-xs text-white/60">En uzun: {longestStreak} gun</p>
                 </div>
-                <div className="text-6xl animate-float">{streakEmoji}</div>
+                <div className="flex flex-col items-center gap-1">
+                  <Flame className="h-10 w-10 text-white/90" />
+                  <span className="text-lg">{getStreakEmoji(currentStreak)}</span>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Weekly Target — Progress Ring Style */}
           <Card className="border-0 gradient-card-green shadow-lg">
-            <CardContent className="p-6">
-              <p className="mb-1 text-sm font-medium text-muted-foreground">
-                🎯 Haftalık Hedef
-              </p>
+            <CardContent className="p-5">
+              <div className="flex items-center gap-1 text-sm font-medium text-muted-foreground mb-2">
+                <Target className="h-4 w-4" />
+                Haftalik Hedef
+              </div>
               <div className="flex items-center gap-4">
-                <div className="relative flex h-20 w-20 items-center justify-center">
-                  <svg className="h-20 w-20 -rotate-90" viewBox="0 0 80 80">
-                    <circle
-                      cx="40" cy="40" r="34"
-                      fill="none"
-                      stroke="hsl(168 40% 88%)"
-                      strokeWidth="8"
-                    />
-                    <circle
-                      cx="40" cy="40" r="34"
-                      fill="none"
-                      stroke="hsl(168 56% 40%)"
-                      strokeWidth="8"
-                      strokeLinecap="round"
-                      strokeDasharray={`${(weeklyProgress / weeklyTarget) * 213.6} 213.6`}
-                    />
+                <div className="relative flex h-16 w-16 items-center justify-center">
+                  <svg className="h-16 w-16 -rotate-90" viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" r="34" fill="none" stroke="hsl(168 40% 88%)" strokeWidth="7" />
+                    <circle cx="40" cy="40" r="34" fill="none" stroke="hsl(168 56% 40%)" strokeWidth="7" strokeLinecap="round" strokeDasharray={`${(Math.min(weeklyProgress / weeklyTarget, 1)) * 213.6} 213.6`} />
                   </svg>
-                  <span className="absolute text-lg font-bold">
-                    {weeklyProgress}/{weeklyTarget}
-                  </span>
+                  <span className="absolute text-sm font-bold">{weeklyProgress}/{weeklyTarget}</span>
                 </div>
                 <div className="flex-1">
-                  <p className="text-lg font-bold">
+                  <p className="text-base font-bold">
                     {weeklyProgress >= weeklyTarget ? (
                       <span className="flex items-center gap-1 text-green-600">
-                        <CheckCircle2 className="h-5 w-5" />
-                        Hedefe ulaştın!
+                        <CheckCircle2 className="h-4 w-4" />
+                        Hedefe ulastin!
                       </span>
                     ) : (
-                      <>{weeklyTarget - weeklyProgress} ders kaldı</>
+                      <>{weeklyTarget - weeklyProgress} ders kaldi</>
                     )}
                   </p>
-                  <p className="text-sm text-muted-foreground">
-                    {weeklyProgress >= weeklyTarget
-                      ? "Tebrikler, bu hafta çok iyi gidiyorsun! 🎉"
-                      : "Az kaldı, devam et! 💪"}
+                  <p className="text-xs text-muted-foreground">
+                    {weeklyProgress >= weeklyTarget ? "Bu hafta harika gidiyorsun!" : "Devam et, az kaldi!"}
                   </p>
                 </div>
               </div>
@@ -193,76 +179,47 @@ export default async function StudentDashboard() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-2xl gradient-card-blue p-4 text-center">
-            <p className="text-2xl">📚</p>
-            <p className="text-2xl font-bold">{enrollments.length}</p>
-            <p className="text-xs text-muted-foreground">Aktif Ders</p>
-          </div>
-          <div className="rounded-2xl gradient-card-green p-4 text-center">
-            <p className="text-2xl">✅</p>
-            <p className="text-2xl font-bold">{totalLessons}</p>
-            <p className="text-xs text-muted-foreground">Toplam Katılım</p>
-          </div>
-          <div className="rounded-2xl gradient-card-orange p-4 text-center">
-            <p className="text-2xl">📅</p>
-            <p className="text-2xl font-bold">{todayLessons.length}</p>
-            <p className="text-xs text-muted-foreground">Bugün Ders</p>
-          </div>
-          <div className="rounded-2xl gradient-card-purple p-4 text-center">
-            <p className="text-2xl">🏆</p>
-            <p className="text-2xl font-bold">{longestStreak}</p>
-            <p className="text-xs text-muted-foreground">Rekor Seri</p>
-          </div>
+          <StatMini icon={BookOpen} label="Aktif Ders" value={enrollments.length} color="text-blue-600 bg-blue-50" />
+          <StatMini icon={CheckCircle2} label="Toplam Katilim" value={totalLessons} color="text-emerald-600 bg-emerald-50" />
+          <StatMini icon={Calendar} label="Bugun Ders" value={todayLessons.length} color="text-amber-600 bg-amber-50" />
+          <StatMini icon={Trophy} label="Rekor Seri" value={longestStreak} color="text-purple-600 bg-purple-50" />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Left Column */}
           <div className="space-y-6 lg:col-span-2">
             {/* Today's Lessons */}
-            <Card className="shadow-sm">
+            <Card>
               <CardHeader className="flex flex-row items-center gap-2 pb-3">
-                <Sparkles className="h-5 w-5 text-teal-500" />
-                <CardTitle>Bugünün Dersleri</CardTitle>
-                <Badge variant="secondary" className="ml-auto text-xs font-semibold">
-                  {getDayLabel(today)}
-                </Badge>
+                <Sparkles className="h-4 w-4 text-primary" />
+                <CardTitle className="text-base">Bugunun Dersleri</CardTitle>
+                <Badge variant="secondary" className="ml-auto text-xs">{getDayLabel(today)}</Badge>
               </CardHeader>
               <CardContent>
                 {todayLessons.length === 0 ? (
-                  <div className="rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 py-8 text-center">
-                    <p className="mb-1 text-4xl">🎉</p>
-                    <p className="font-semibold text-green-700">Bugün ders yok!</p>
-                    <p className="text-sm text-green-600">
-                      Kendine vakit ayır, tekrar yap veya dinlen.
-                    </p>
+                  <div className="rounded-lg bg-emerald-50 py-6 text-center">
+                    <Calendar className="mx-auto mb-2 h-8 w-8 text-emerald-500" />
+                    <p className="font-medium text-emerald-700">Bugun ders yok!</p>
+                    <p className="text-sm text-emerald-600">Kendine vakit ayir veya tekrar yap.</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {todayLessons.map((lesson, index) => (
-                      <div
-                        key={lesson.id}
-                        className="group flex items-center gap-4 rounded-2xl border-2 border-transparent bg-accent/30 p-4 transition-all hover:border-primary/20 hover:shadow-sm"
-                      >
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl text-xl font-bold text-white shadow-sm"
-                          style={{ backgroundColor: lesson.course.color }}
-                        >
+                      <div key={lesson.id} className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/40">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-bold text-white" style={{ backgroundColor: lesson.course.color }}>
                           {index + 1}
                         </div>
-                        <div className="flex-1">
-                          <p className="font-semibold">{lesson.course.name}</p>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Clock className="h-3.5 w-3.5" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium">{lesson.course.name}</p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />
                             {formatTime(lesson.startTime)} - {formatTime(lesson.endTime)}
                             {lesson.room && (
-                              <span className="rounded-md bg-white px-1.5 py-0.5 text-xs font-medium shadow-sm">
-                                📍 {lesson.room}
-                              </span>
+                              <span className="inline-flex items-center gap-0.5"><MapPin className="h-3 w-3" />{lesson.room}</span>
                             )}
                           </div>
                         </div>
-                        <Badge variant="outline" className="text-xs font-semibold">
-                          {lesson.course.code}
-                        </Badge>
+                        <Badge variant="outline" className="text-[10px] shrink-0">{lesson.course.code}</Badge>
                       </div>
                     ))}
                   </div>
@@ -272,33 +229,22 @@ export default async function StudentDashboard() {
 
             {/* Tomorrow Preview */}
             {tomorrowLessons.length > 0 && (
-              <Card className="shadow-sm">
+              <Card>
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">
-                      ⏭️ Yarın ({getDayLabel(tomorrowDay)})
-                    </CardTitle>
-                    <Link
-                      href="/panel/ogrenci/program"
-                      className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
-                    >
-                      Tüm program <ArrowRight className="h-3 w-3" />
+                    <CardTitle className="text-sm">Yarin ({getDayLabel(tomorrowDay)})</CardTitle>
+                    <Link href="/panel/ogrenci/program" className="flex items-center gap-1 text-xs text-primary hover:underline">
+                      Tum program <ArrowRight className="h-3 w-3" />
                     </Link>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     {tomorrowLessons.map((lesson) => (
-                      <div
-                        key={lesson.id}
-                        className="flex items-center gap-3 rounded-xl bg-accent/30 p-3 text-sm"
-                      >
-                        <div
-                          className="h-8 w-2 rounded-full"
-                          style={{ backgroundColor: lesson.courseColor }}
-                        />
+                      <div key={lesson.id} className="flex items-center gap-3 rounded-lg bg-muted/40 px-3 py-2 text-sm">
+                        <span className="h-6 w-1.5 rounded-full" style={{ backgroundColor: lesson.courseColor }} />
                         <span className="font-medium">{lesson.courseName}</span>
-                        <span className="ml-auto text-muted-foreground">
+                        <span className="ml-auto text-xs text-muted-foreground">
                           {formatTime(lesson.startTime)} - {formatTime(lesson.endTime)}
                         </span>
                       </div>
@@ -308,53 +254,39 @@ export default async function StudentDashboard() {
               </Card>
             )}
 
-            {/* Courses Grid */}
-            <Card className="shadow-sm">
+            {/* Courses */}
+            <Card>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">📚 Derslerim</CardTitle>
-                  <Link
-                    href="/panel/ogrenci/dersler"
-                    className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
-                  >
-                    Tümünü gör <ArrowRight className="h-3 w-3" />
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-primary" />
+                    <CardTitle className="text-base">Derslerim</CardTitle>
+                  </div>
+                  <Link href="/panel/ogrenci/dersler" className="flex items-center gap-1 text-xs text-primary hover:underline">
+                    Tumunu gor <ArrowRight className="h-3 w-3" />
                   </Link>
                 </div>
               </CardHeader>
               <CardContent>
                 {enrollments.length === 0 ? (
                   <div className="py-6 text-center">
-                    <p className="text-3xl mb-2">📭</p>
-                    <p className="text-sm text-muted-foreground">
-                      Henüz kayıtlı dersin yok. Yakında burada derslerini göreceksin!
-                    </p>
+                    <BookOpen className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Henuz kayitli dersin yok.</p>
                   </div>
                 ) : (
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-2 sm:grid-cols-2">
                     {enrollments.slice(0, 4).map((enrollment) => (
-                      <div
-                        key={enrollment.id}
-                        className="group rounded-2xl border-2 border-transparent p-4 transition-all hover:border-primary/10 hover:shadow-sm"
-                        style={{ backgroundColor: enrollment.course.color + "10" }}
-                      >
-                        <div className="mb-2 flex items-center gap-2">
-                          <div
-                            className="h-8 w-8 rounded-lg flex items-center justify-center text-white text-xs font-bold"
-                            style={{ backgroundColor: enrollment.course.color }}
-                          >
+                      <div key={enrollment.id} className="rounded-lg border p-3 transition-colors hover:bg-muted/30">
+                        <div className="mb-1.5 flex items-center gap-2">
+                          <span className="h-7 w-7 rounded-md flex items-center justify-center text-white text-[10px] font-bold" style={{ backgroundColor: enrollment.course.color }}>
                             {enrollment.course.code.slice(0, 2)}
-                          </div>
-                          <span className="font-semibold text-sm">
-                            {enrollment.course.name}
                           </span>
+                          <span className="font-medium text-sm truncate">{enrollment.course.name}</span>
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          👨‍🏫 {enrollment.course.teacher.firstName}{" "}
-                          {enrollment.course.teacher.lastName}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          📅 {enrollment.course.lessonSlots.length} ders/hafta
-                        </p>
+                        <div className="space-y-0.5 text-xs text-muted-foreground">
+                          <p className="flex items-center gap-1"><User className="h-3 w-3" />{enrollment.course.teacher.firstName} {enrollment.course.teacher.lastName}</p>
+                          <p className="flex items-center gap-1"><Calendar className="h-3 w-3" />{enrollment.course.lessonSlots.length} ders/hafta</p>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -365,87 +297,61 @@ export default async function StudentDashboard() {
 
           {/* Right Column */}
           <div className="space-y-6">
-            {/* Motivation Card */}
-            <Card className="border-0 bg-gradient-to-br from-teal-50 via-emerald-50 to-green-50 shadow-sm">
-              <CardContent className="p-5 text-center">
-                <p className="text-3xl mb-2">💡</p>
-                <p className="text-sm font-medium text-teal-700">
-                  Günün Sözü
-                </p>
-                <p className="mt-2 text-sm text-teal-600 italic">
-                  &ldquo;Bugün öğrendiğin her şey, yarının gücü olacak.&rdquo;
+            {/* Level */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-amber-500" />
+                    <p className="text-sm font-bold">Seviye {Math.floor(totalLessons / 10) + 1}</p>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{totalLessons % 10}/10 ders</span>
+                </div>
+                <Progress value={totalLessons % 10} max={10} size="sm" />
+                <p className="mt-1.5 text-[11px] text-muted-foreground text-center">
+                  {10 - (totalLessons % 10)} ders daha ile seviye atlayacaksin!
                 </p>
               </CardContent>
             </Card>
 
-            {/* Level / XP Progress */}
-            <Card className="shadow-sm">
-              <CardContent className="p-5">
-                <div className="mb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">⭐</span>
-                    <div>
-                      <p className="text-sm font-bold">
-                        Seviye {Math.floor(totalLessons / 10) + 1}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {totalLessons % 10}/10 ders
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-2xl">
-                    {totalLessons < 10 ? "🌱" : totalLessons < 25 ? "🌿" : totalLessons < 50 ? "🌳" : "🏔️"}
-                  </span>
-                </div>
-                <Progress
-                  value={totalLessons % 10}
-                  max={10}
-                  size="md"
-                />
-                <p className="mt-2 text-xs text-muted-foreground text-center">
-                  {10 - (totalLessons % 10)} ders daha ile seviye atlayacaksın!
+            {/* Motivation */}
+            <Card className="border-0 bg-gradient-to-br from-teal-50 via-emerald-50 to-green-50">
+              <CardContent className="p-4 text-center">
+                <Sparkles className="mx-auto mb-1.5 h-5 w-5 text-teal-500" />
+                <p className="text-xs font-medium text-teal-700">Gunun Sozu</p>
+                <p className="mt-1.5 text-sm text-teal-600 italic">
+                  &ldquo;Bugun ogrendigin her sey, yarinin gucu olacak.&rdquo;
                 </p>
               </CardContent>
             </Card>
 
             {/* Announcements */}
-            <Card className="shadow-sm">
+            <Card>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">📢 Duyurular</CardTitle>
-                  <Link
-                    href="/panel/ogrenci/duyurular"
-                    className="text-xs font-semibold text-primary hover:underline"
-                  >
-                    Tümü
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Bell className="h-4 w-4 text-primary" />
+                    <CardTitle className="text-sm">Duyurular</CardTitle>
+                  </div>
+                  <Link href="/panel/ogrenci/duyurular" className="text-xs text-primary hover:underline">Tumu</Link>
                 </div>
               </CardHeader>
               <CardContent>
                 {announcements.length === 0 ? (
-                  <div className="py-4 text-center">
-                    <p className="text-2xl mb-1">🔇</p>
-                    <p className="text-sm text-muted-foreground">
-                      Henüz duyuru yok.
-                    </p>
+                  <div className="py-3 text-center">
+                    <Bell className="mx-auto mb-1 h-5 w-5 text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">Henuz duyuru yok.</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {announcements.map((ann) => (
-                      <div key={ann.id} className="rounded-xl bg-accent/30 p-3">
-                        <p className="text-sm font-semibold">{ann.title}</p>
-                        <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">
-                          {ann.content}
-                        </p>
-                        <div className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
-                          <span>
-                            👤 {ann.author.firstName} {ann.author.lastName}
-                          </span>
+                      <div key={ann.id} className="rounded-lg bg-muted/40 p-2.5">
+                        <p className="text-sm font-medium">{ann.title}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{ann.content}</p>
+                        <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
+                          <span className="flex items-center gap-0.5"><User className="h-2.5 w-2.5" />{ann.author.firstName} {ann.author.lastName}</span>
                           {ann.course && (
-                            <>
-                              <span>·</span>
-                              <span>📚 {ann.course.name}</span>
-                            </>
+                            <><span>·</span><span className="flex items-center gap-0.5"><BookOpen className="h-2.5 w-2.5" />{ann.course.name}</span></>
                           )}
                         </div>
                       </div>
@@ -458,5 +364,22 @@ export default async function StudentDashboard() {
         </div>
       </div>
     </DashboardShell>
+  );
+}
+
+function StatMini({ icon: Icon, label, value, color }: { icon: React.ComponentType<{ className?: string }>; label: string; value: number; color: string }) {
+  const [iconColor, bgColor] = color.split(" ");
+  return (
+    <Card>
+      <CardContent className="flex items-center gap-3 p-3">
+        <div className={`rounded-lg p-2 ${bgColor}`}>
+          <Icon className={`h-4 w-4 ${iconColor}`} />
+        </div>
+        <div>
+          <p className="text-xl font-bold leading-none">{value}</p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">{label}</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

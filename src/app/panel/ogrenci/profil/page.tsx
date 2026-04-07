@@ -5,15 +5,16 @@ import { useState } from "react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Phone, Save } from "lucide-react";
+import { User, Mail, Phone, Save, X } from "lucide-react";
 
 export default function StudentProfilePage() {
   const { data: session, update } = useSession();
   const [isLoading, setIsLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [notice, setNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [formData, setFormData] = useState({
     firstName: session?.user?.firstName || "",
     lastName: session?.user?.lastName || "",
@@ -24,7 +25,7 @@ export default function StudentProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setSuccess(false);
+    setNotice(null);
 
     try {
       const res = await fetch("/api/profile", {
@@ -34,12 +35,14 @@ export default function StudentProfilePage() {
       });
 
       if (res.ok) {
-        setSuccess(true);
+        setNotice({ type: "success", message: "Profil basariyla guncellendi." });
         await update();
-        setTimeout(() => setSuccess(false), 3000);
+        setTimeout(() => setNotice(null), 3000);
+      } else {
+        setNotice({ type: "error", message: "Profil guncellenemedi." });
       }
     } catch {
-      // handle error
+      setNotice({ type: "error", message: "Bir hata olustu." });
     } finally {
       setIsLoading(false);
     }
@@ -48,126 +51,70 @@ export default function StudentProfilePage() {
   if (!session) return null;
 
   return (
-    <DashboardShell title="Profil" description="Hesap bilgilerini düzenle">
+    <DashboardShell title="Profil" description="Hesap bilgilerini duzenle">
       <div className="mx-auto max-w-2xl space-y-6">
         <Card>
           <CardHeader>
             <div className="flex items-center gap-4">
-              <Avatar
-                firstName={session.user.firstName}
-                lastName={session.user.lastName}
-                size="lg"
-              />
+              <Avatar firstName={session.user.firstName} lastName={session.user.lastName} size="lg" />
               <div>
-                <CardTitle>
-                  {session.user.firstName} {session.user.lastName}
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  {session.user.email}
-                </p>
-                <Badge variant="secondary" className="mt-1">
-                  Öğrenci
-                </Badge>
+                <CardTitle>{session.user.firstName} {session.user.lastName}</CardTitle>
+                <p className="text-sm text-muted-foreground">{session.user.email}</p>
+                <Badge variant="secondary" className="mt-1">Ogrenci</Badge>
               </div>
             </div>
           </CardHeader>
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="text-base">Profil Bilgileri</CardTitle>
           </CardHeader>
           <CardContent>
-            {success && (
-              <div className="mb-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">
-                Profil başarıyla güncellendi.
+            {notice && (
+              <div className={`mb-4 flex items-center justify-between rounded-lg px-3 py-2.5 text-sm ${notice.type === "success" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
+                {notice.message}
+                <button onClick={() => setNotice(null)} className="ml-2 rounded p-0.5 hover:bg-black/5"><X className="h-3.5 w-3.5" /></button>
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium">Ad</label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Ad</label>
                   <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      value={formData.firstName}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          firstName: e.target.value,
-                        }))
-                      }
-                      className="pl-10"
-                    />
+                    <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input value={formData.firstName} onChange={(e) => setFormData((p) => ({ ...p, firstName: e.target.value }))} className="pl-10 h-9" />
                   </div>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium">
-                    Soyad
-                  </label>
-                  <Input
-                    value={formData.lastName}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        lastName: e.target.value,
-                      }))
-                    }
-                  />
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Soyad</label>
+                  <Input value={formData.lastName} onChange={(e) => setFormData((p) => ({ ...p, lastName: e.target.value }))} className="h-9" />
                 </div>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium">
-                  E-posta
-                </label>
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">E-posta</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    value={session.user.email}
-                    disabled
-                    className="pl-10"
-                  />
+                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input value={session.user.email} disabled className="pl-10 h-9" />
                 </div>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium">
-                  Telefon
-                </label>
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Telefon</label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    value={formData.phone}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        phone: e.target.value,
-                      }))
-                    }
-                    placeholder="05XX XXX XX XX"
-                    className="pl-10"
-                  />
+                  <Phone className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input value={formData.phone} onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))} placeholder="05XX XXX XX XX" className="pl-10 h-9" />
                 </div>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium">
-                  Hakkımda
-                </label>
-                <textarea
-                  value={formData.bio}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, bio: e.target.value }))
-                  }
-                  placeholder="Kendinden kısaca bahset..."
-                  rows={3}
-                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                />
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Hakkimda</label>
+                <Textarea value={formData.bio} onChange={(e) => setFormData((p) => ({ ...p, bio: e.target.value }))} placeholder="Kendinden kisaca bahset..." rows={3} />
               </div>
 
-              <Button type="submit" isLoading={isLoading} className="gap-2">
+              <Button type="submit" size="sm" isLoading={isLoading} className="gap-1.5">
                 <Save className="h-4 w-4" />
                 Kaydet
               </Button>

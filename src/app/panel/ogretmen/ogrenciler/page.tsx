@@ -1,11 +1,11 @@
 import { requireAuth } from "@/lib/auth-guard";
 import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Users, Mail } from "lucide-react";
+import { Users, Mail, Flame } from "lucide-react";
 
 export default async function TeacherStudentsPage() {
   const session = await requireAuth(["TEACHER"]);
@@ -37,13 +37,14 @@ export default async function TeacherStudentsPage() {
     streaks: { currentStreak: number; totalLessons: number } | null;
     courses: string[];
   }
+
   const allStudents = new Map<string, StudentWithCourses>();
   courses.forEach((course) => {
     course.enrollments.forEach((enrollment) => {
       if (!allStudents.has(enrollment.student.id)) {
         allStudents.set(enrollment.student.id, {
           ...enrollment.student,
-          courses: [] as string[],
+          courses: [],
         });
       }
       allStudents.get(enrollment.student.id)!.courses.push(course.name);
@@ -54,50 +55,50 @@ export default async function TeacherStudentsPage() {
 
   return (
     <DashboardShell
-      title="Öğrencilerim"
-      description={`Toplam ${students.length} öğrenci`}
+      title="Ogrencilerim"
+      description={`Toplam ${students.length} ogrenci`}
     >
       {students.length === 0 ? (
         <EmptyState
           icon={Users}
-          title="Henüz öğrenciniz yok"
-          description="Derslerinize öğrenci kaydedildiğinde burada görünecektir."
+          title="Henuz ogrencisiniz yok"
+          description="Derslerinize ogrenci kaydedildiginde burada gorunecektir."
         />
       ) : (
-        <div className="space-y-3">
-          {students.map((student) => (
-            <Card key={student.id}>
-              <CardContent className="flex items-center gap-4 p-4">
-                <Avatar
-                  firstName={student.firstName}
-                  lastName={student.lastName}
-                />
-                <div className="flex-1">
-                  <p className="font-medium">
-                    {student.firstName} {student.lastName}
-                  </p>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Mail className="h-3 w-3" />
-                    {student.email}
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">Ogrenci Listesi</CardTitle>
+              <Badge variant="outline" className="font-normal">{students.length} ogrenci</Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y">
+              {students.map((student) => (
+                <div key={student.id} className="flex items-center gap-3 px-4 py-3 sm:px-6">
+                  <Avatar firstName={student.firstName} lastName={student.lastName} size="sm" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{student.firstName} {student.lastName}</p>
+                    <p className="flex items-center gap-1 text-xs text-muted-foreground truncate">
+                      <Mail className="h-3 w-3 shrink-0" />
+                      {student.email}
+                    </p>
+                  </div>
+                  <div className="hidden sm:flex flex-wrap gap-1 shrink-0 max-w-[200px] justify-end">
+                    {student.courses.map((courseName) => (
+                      <Badge key={courseName} variant="secondary" className="text-[10px]">{courseName}</Badge>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0 text-sm">
+                    <Flame className="h-3.5 w-3.5 text-orange-500" />
+                    <span className="font-medium">{student.streaks?.currentStreak || 0}</span>
+                    <span className="text-[11px] text-muted-foreground">gun</span>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-1">
-                  {student.courses.map((courseName: string) => (
-                    <Badge key={courseName} variant="secondary" className="text-xs">
-                      {courseName}
-                    </Badge>
-                  ))}
-                </div>
-                <div className="text-right text-sm">
-                  <p className="font-medium">
-                    {student.streaks?.currentStreak || 0} gün
-                  </p>
-                  <p className="text-xs text-muted-foreground">seri</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
     </DashboardShell>
   );

@@ -4,19 +4,9 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getDayLabel, getTodayDayOfWeek, formatTime } from "@/lib/utils";
-import { Clock } from "lucide-react";
+import { Calendar, Clock, MapPin, User } from "lucide-react";
 
 const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] as const;
-
-const dayEmojis: Record<string, string> = {
-  MONDAY: "1️⃣",
-  TUESDAY: "2️⃣",
-  WEDNESDAY: "3️⃣",
-  THURSDAY: "4️⃣",
-  FRIDAY: "5️⃣",
-  SATURDAY: "6️⃣",
-  SUNDAY: "7️⃣",
-};
 
 export default async function StudentSchedulePage() {
   const session = await requireAuth(["STUDENT"]);
@@ -44,7 +34,6 @@ export default async function StudentSchedulePage() {
   const slotsByDay = DAYS.map((day) => ({
     day,
     label: getDayLabel(day),
-    emoji: dayEmojis[day],
     isToday: day === today,
     slots: lessonSlots.filter((s) => s.dayOfWeek === day),
   }));
@@ -53,59 +42,46 @@ export default async function StudentSchedulePage() {
 
   return (
     <DashboardShell
-      title="📅 Ders Programı"
-      description={`Haftalık ${totalWeeklyLessons} ders`}
+      title="Ders Programi"
+      description={`Haftalik ${totalWeeklyLessons} ders`}
     >
-      <div className="space-y-4">
-        {slotsByDay.map(({ day, label, emoji, isToday, slots }) => (
-          <Card
-            key={day}
-            className={isToday ? "ring-2 ring-primary/40 shadow-md" : "shadow-sm"}
-          >
-            <CardContent className="p-5">
-              <div className="mb-3 flex items-center gap-2">
-                <span className="text-lg">{emoji}</span>
-                <h3 className="font-bold">{label}</h3>
-                {isToday && (
-                  <Badge className="bg-gradient-to-r from-teal-500 to-emerald-500 border-0 text-white">
-                    Bugün
-                  </Badge>
-                )}
-                <span className="ml-auto text-sm text-muted-foreground">
-                  {slots.length === 0 ? "Ders yok 🎉" : `${slots.length} ders`}
+      <div className="space-y-3">
+        {slotsByDay.map(({ day, label, isToday, slots }) => (
+          <Card key={day} className={isToday ? "ring-2 ring-primary/40" : ""}>
+            <CardContent className="p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-primary" />
+                <h3 className="text-sm font-semibold">{label}</h3>
+                {isToday && <Badge className="text-[10px]">Bugun</Badge>}
+                <span className="ml-auto text-xs text-muted-foreground">
+                  {slots.length === 0 ? "Ders yok" : `${slots.length} ders`}
                 </span>
               </div>
               {slots.length === 0 ? (
-                <p className="py-1 text-sm text-muted-foreground">
-                  Bu gün rahatsın! 😎
-                </p>
+                <p className="py-1 text-xs text-muted-foreground">Bu gun boş.</p>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {slots.map((slot) => (
-                    <div
-                      key={slot.id}
-                      className="flex items-center gap-4 rounded-2xl bg-accent/30 p-3 transition-all hover:bg-accent/60"
-                    >
-                      <div
-                        className="flex h-10 w-10 items-center justify-center rounded-xl text-xs font-bold text-white"
-                        style={{ backgroundColor: slot.course.color }}
-                      >
+                    <div key={slot.id} className="flex items-center gap-3 rounded-lg bg-muted/40 p-2.5">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-md text-[10px] font-bold text-white" style={{ backgroundColor: slot.course.color }}>
                         {slot.course.code.slice(0, 3)}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-sm">{slot.course.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          👨‍🏫 {slot.course.teacher.firstName} {slot.course.teacher.lastName}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{slot.course.name}</p>
+                        <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <User className="h-3 w-3" />
+                          {slot.course.teacher.firstName} {slot.course.teacher.lastName}
                         </p>
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2.5 text-xs text-muted-foreground shrink-0">
                         <span className="flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5" />
+                          <Clock className="h-3 w-3" />
                           {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
                         </span>
                         {slot.room && (
-                          <span className="rounded-lg bg-white px-2 py-0.5 text-xs font-medium shadow-sm">
-                            📍 {slot.room}
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {slot.room}
                           </span>
                         )}
                       </div>
