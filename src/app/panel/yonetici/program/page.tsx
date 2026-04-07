@@ -2,6 +2,7 @@ import { requireAuth } from "@/lib/auth-guard";
 import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { AdminScheduleManager } from "@/components/admin/admin-schedule-manager";
+import type { CalendarSlot } from "@/components/ui/weekly-calendar";
 
 export default async function AdminSchedulePage() {
   await requireAuth(["ADMIN"]);
@@ -42,6 +43,33 @@ export default async function AdminSchedulePage() {
     }),
   ]);
 
+  const slotRecords = lessonSlots.map((slot) => ({
+    id: slot.id,
+    courseId: slot.courseId,
+    courseName: slot.course.name,
+    courseCode: slot.course.code,
+    courseColor: slot.course.color,
+    teacherName: `${slot.course.teacher.firstName} ${slot.course.teacher.lastName}`,
+    enrollmentCount: slot.course._count.enrollments,
+    dayOfWeek: slot.dayOfWeek,
+    startTime: slot.startTime,
+    endTime: slot.endTime,
+    room: slot.room,
+  }));
+
+  const calendarSlots: CalendarSlot[] = slotRecords.map((s) => ({
+    id: s.id,
+    courseName: s.courseName,
+    courseCode: s.courseCode,
+    courseColor: s.courseColor,
+    dayOfWeek: s.dayOfWeek,
+    startTime: s.startTime,
+    endTime: s.endTime,
+    room: s.room,
+    teacherName: s.teacherName,
+    enrollmentCount: s.enrollmentCount,
+  }));
+
   return (
     <DashboardShell
       title="Ders Programı"
@@ -49,19 +77,8 @@ export default async function AdminSchedulePage() {
     >
       <AdminScheduleManager
         courses={courses}
-        slots={lessonSlots.map((slot) => ({
-          id: slot.id,
-          courseId: slot.courseId,
-          courseName: slot.course.name,
-          courseCode: slot.course.code,
-          courseColor: slot.course.color,
-          teacherName: `${slot.course.teacher.firstName} ${slot.course.teacher.lastName}`,
-          enrollmentCount: slot.course._count.enrollments,
-          dayOfWeek: slot.dayOfWeek,
-          startTime: slot.startTime,
-          endTime: slot.endTime,
-          room: slot.room,
-        }))}
+        slots={slotRecords}
+        calendarSlots={calendarSlots}
       />
     </DashboardShell>
   );

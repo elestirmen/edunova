@@ -6,6 +6,8 @@ import {
   Calendar,
   ChevronDown,
   Clock3,
+  Grid3X3,
+  List,
   MapPin,
   Plus,
   Save,
@@ -23,6 +25,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { WeeklyCalendar } from "@/components/ui/weekly-calendar";
+import type { CalendarSlot } from "@/components/ui/weekly-calendar";
 import { cn, getDayLabel } from "@/lib/utils";
 
 type DayKey = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
@@ -59,6 +63,7 @@ interface SlotFormState {
 interface AdminScheduleManagerProps {
   courses: CourseOption[];
   slots: SlotRecord[];
+  calendarSlots: CalendarSlot[];
 }
 
 const DAYS: DayKey[] = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
@@ -79,8 +84,9 @@ function getApiErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
-export function AdminScheduleManager({ courses, slots }: AdminScheduleManagerProps) {
+export function AdminScheduleManager({ courses, slots, calendarSlots }: AdminScheduleManagerProps) {
   const router = useRouter();
+  const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
   const [createForm, setCreateForm] = useState<SlotFormState>(getInitialSlotForm(courses[0]?.id ?? ""));
   const [drafts, setDrafts] = useState<Record<string, SlotFormState>>({});
   const [isCreating, setIsCreating] = useState(false);
@@ -187,12 +193,31 @@ export function AdminScheduleManager({ courses, slots }: AdminScheduleManagerPro
       )}
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">{slots.length} ders saati, {slotsByDay.length} gün</p>
-        <Button size="sm" className="gap-1.5 h-9" onClick={() => setShowCreateForm(!showCreateForm)}>
-          <Plus className="h-4 w-4" />
-          Yeni Ders Saati
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* View Toggle */}
+          <div className="flex rounded-lg border bg-muted/40 p-0.5">
+            <button
+              onClick={() => setViewMode("calendar")}
+              className={cn("flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors", viewMode === "calendar" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
+            >
+              <Grid3X3 className="h-3.5 w-3.5" />
+              Takvim
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={cn("flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors", viewMode === "list" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
+            >
+              <List className="h-3.5 w-3.5" />
+              Liste
+            </button>
+          </div>
+          <Button size="sm" className="gap-1.5 h-9" onClick={() => setShowCreateForm(!showCreateForm)}>
+            <Plus className="h-4 w-4" />
+            Yeni Ders Saati
+          </Button>
+        </div>
       </div>
 
       {/* Create Form */}
@@ -242,106 +267,116 @@ export function AdminScheduleManager({ courses, slots }: AdminScheduleManagerPro
         </Card>
       )}
 
-      {/* Schedule by Day */}
-      {slotsByDay.map(({ day, slots: daySlots }) => (
-        <Card key={day}>
-          <CardHeader className="pb-2 px-4 sm:px-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-primary" />
-                <CardTitle className="text-sm font-semibold">{getDayLabel(day)}</CardTitle>
-              </div>
-              <Badge variant="outline" className="text-[10px] font-normal">{daySlots.length} ders</Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="divide-y">
-              {daySlots.map((slot) => {
-                const isExpanded = expandedSlotId === slot.id;
-                const draft = drafts[slot.id];
-
-                return (
-                  <div key={slot.id} className={cn("transition-colors", isExpanded && "bg-muted/30")}>
-                    {/* Compact Row */}
-                    <div className="flex items-center gap-3 px-4 py-2.5 sm:px-6">
-                      <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: slot.courseColor }} />
-                      <button
-                        type="button"
-                        onClick={() => setExpandedSlotId(isExpanded ? null : slot.id)}
-                        className="flex min-w-0 flex-1 items-center gap-3 text-left"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">{slot.courseName}</span>
-                            <Badge variant="outline" className="text-[10px] px-1.5 py-0">{slot.courseCode}</Badge>
-                          </div>
-                          <div className="mt-0.5 flex flex-wrap items-center gap-2.5 text-[11px] text-muted-foreground">
-                            <span className="inline-flex items-center gap-1"><Clock3 className="h-3 w-3" />{slot.startTime} - {slot.endTime}</span>
-                            <span className="inline-flex items-center gap-1"><User className="h-3 w-3" />{slot.teacherName}</span>
-                            {slot.room && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{slot.room}</span>}
-                            <span>{slot.enrollmentCount} öğrenci</span>
-                          </div>
-                        </div>
-                        <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", isExpanded && "rotate-180")} />
-                      </button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="shrink-0 h-8 w-8 p-0 text-muted-foreground hover:text-red-600 hover:bg-red-50"
-                        onClick={() => handleDeleteSlot(slot.id)}
-                        disabled={deletingSlotId === slot.id}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-
-                    {/* Expanded Edit */}
-                    {isExpanded && draft && (
-                      <div className="border-t bg-muted/20 px-4 py-3 sm:px-6">
-                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                          <Field label="Ders">
-                            <select className={selectClassName} value={draft.courseId} onChange={(e) => updateDraft(slot.id, "courseId", e.target.value)}>
-                              {courses.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
-                            </select>
-                          </Field>
-                          <Field label="Gün">
-                            <select className={selectClassName} value={draft.dayOfWeek} onChange={(e) => updateDraft(slot.id, "dayOfWeek", e.target.value as DayKey)}>
-                              {DAYS.map((d) => <option key={d} value={d}>{getDayLabel(d)}</option>)}
-                            </select>
-                          </Field>
-                          <Field label="Başlangıç">
-                            <Input type="time" value={draft.startTime} onChange={(e) => updateDraft(slot.id, "startTime", e.target.value)} className="h-9" />
-                          </Field>
-                          <Field label="Bitiş">
-                            <Input type="time" value={draft.endTime} onChange={(e) => updateDraft(slot.id, "endTime", e.target.value)} className="h-9" />
-                          </Field>
-                          <Field label="Derslik">
-                            <Input value={draft.room} onChange={(e) => updateDraft(slot.id, "room", e.target.value)} placeholder="A-101" className="h-9" />
-                          </Field>
-                        </div>
-                        <div className="mt-3 flex justify-end gap-2">
-                          <Button variant="outline" size="sm" onClick={() => setExpandedSlotId(null)}>İptal</Button>
-                          <Button size="sm" className="gap-1.5" onClick={() => handleSaveSlot(slot.id)} isLoading={savingSlotId === slot.id}>
-                            <Save className="h-3.5 w-3.5" />
-                            Kaydet
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+      {/* Calendar View */}
+      {viewMode === "calendar" && (
+        <Card>
+          <CardContent className="p-4">
+            <WeeklyCalendar slots={calendarSlots} variant="admin" />
           </CardContent>
         </Card>
-      ))}
+      )}
 
-      {/* Empty days info */}
-      {emptyDays.length > 0 && (
-        <div className="flex items-start gap-2 rounded-lg bg-muted/40 px-4 py-3 text-xs text-muted-foreground">
-          <Calendar className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          <p>{emptyDays.map((d) => getDayLabel(d)).join(", ")} günleri için ders planlanmamış.</p>
-        </div>
+      {/* List View */}
+      {viewMode === "list" && (
+        <>
+          {slotsByDay.map(({ day, slots: daySlots }) => (
+            <Card key={day}>
+              <CardHeader className="pb-2 px-4 sm:px-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-primary" />
+                    <CardTitle className="text-sm font-semibold">{getDayLabel(day)}</CardTitle>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] font-normal">{daySlots.length} ders</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="divide-y">
+                  {daySlots.map((slot) => {
+                    const isExpanded = expandedSlotId === slot.id;
+                    const draft = drafts[slot.id];
+
+                    return (
+                      <div key={slot.id} className={cn("transition-colors", isExpanded && "bg-muted/30")}>
+                        <div className="flex items-center gap-3 px-4 py-2.5 sm:px-6">
+                          <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: slot.courseColor }} />
+                          <button
+                            type="button"
+                            onClick={() => setExpandedSlotId(isExpanded ? null : slot.id)}
+                            className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                          >
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium">{slot.courseName}</span>
+                                <Badge variant="outline" className="text-[10px] px-1.5 py-0">{slot.courseCode}</Badge>
+                              </div>
+                              <div className="mt-0.5 flex flex-wrap items-center gap-2.5 text-[11px] text-muted-foreground">
+                                <span className="inline-flex items-center gap-1"><Clock3 className="h-3 w-3" />{slot.startTime} - {slot.endTime}</span>
+                                <span className="inline-flex items-center gap-1"><User className="h-3 w-3" />{slot.teacherName}</span>
+                                {slot.room && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{slot.room}</span>}
+                                <span>{slot.enrollmentCount} öğrenci</span>
+                              </div>
+                            </div>
+                            <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", isExpanded && "rotate-180")} />
+                          </button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="shrink-0 h-8 w-8 p-0 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                            onClick={() => handleDeleteSlot(slot.id)}
+                            disabled={deletingSlotId === slot.id}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+
+                        {isExpanded && draft && (
+                          <div className="border-t bg-muted/20 px-4 py-3 sm:px-6">
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                              <Field label="Ders">
+                                <select className={selectClassName} value={draft.courseId} onChange={(e) => updateDraft(slot.id, "courseId", e.target.value)}>
+                                  {courses.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
+                                </select>
+                              </Field>
+                              <Field label="Gün">
+                                <select className={selectClassName} value={draft.dayOfWeek} onChange={(e) => updateDraft(slot.id, "dayOfWeek", e.target.value as DayKey)}>
+                                  {DAYS.map((d) => <option key={d} value={d}>{getDayLabel(d)}</option>)}
+                                </select>
+                              </Field>
+                              <Field label="Başlangıç">
+                                <Input type="time" value={draft.startTime} onChange={(e) => updateDraft(slot.id, "startTime", e.target.value)} className="h-9" />
+                              </Field>
+                              <Field label="Bitiş">
+                                <Input type="time" value={draft.endTime} onChange={(e) => updateDraft(slot.id, "endTime", e.target.value)} className="h-9" />
+                              </Field>
+                              <Field label="Derslik">
+                                <Input value={draft.room} onChange={(e) => updateDraft(slot.id, "room", e.target.value)} placeholder="A-101" className="h-9" />
+                              </Field>
+                            </div>
+                            <div className="mt-3 flex justify-end gap-2">
+                              <Button variant="outline" size="sm" onClick={() => setExpandedSlotId(null)}>İptal</Button>
+                              <Button size="sm" className="gap-1.5" onClick={() => handleSaveSlot(slot.id)} isLoading={savingSlotId === slot.id}>
+                                <Save className="h-3.5 w-3.5" />
+                                Kaydet
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {emptyDays.length > 0 && (
+            <div className="flex items-start gap-2 rounded-lg bg-muted/40 px-4 py-3 text-xs text-muted-foreground">
+              <Calendar className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <p>{emptyDays.map((d) => getDayLabel(d)).join(", ")} günleri için ders planlanmamış.</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
