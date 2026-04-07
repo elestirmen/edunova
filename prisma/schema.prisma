@@ -1,0 +1,160 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  passwordHash   String
+  firstName      String
+  lastName       String
+  role           Role     @default(STUDENT)
+  avatarUrl      String?
+  phone          String?
+  bio            String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  enrollments    Enrollment[]
+  teacherCourses Course[]       @relation("CourseTeacher")
+  attendances    Attendance[]
+  streaks        Streak?
+  goals          Goal[]
+  announcements  Announcement[] @relation("AnnouncementAuthor")
+
+  @@map("users")
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique
+  description String?
+  color       String   @default("#6366f1")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  teacherId   String
+  teacher     User     @relation("CourseTeacher", fields: [teacherId], references: [id])
+
+  enrollments   Enrollment[]
+  lessonSlots   LessonSlot[]
+  announcements Announcement[]
+
+  @@map("courses")
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  studentId String
+  courseId   String
+  createdAt DateTime @default(now())
+
+  student User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@map("enrollments")
+}
+
+model LessonSlot {
+  id        String    @id @default(cuid())
+  courseId   String
+  dayOfWeek DayOfWeek
+  startTime String
+  endTime   String
+  room      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  attendances Attendance[]
+
+  @@map("lesson_slots")
+}
+
+model Attendance {
+  id           String     @id @default(cuid())
+  studentId    String
+  lessonSlotId String
+  date         DateTime
+  isPresent    Boolean    @default(false)
+  note         String?
+  createdAt    DateTime   @default(now())
+
+  student    User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  lessonSlot LessonSlot @relation(fields: [lessonSlotId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, lessonSlotId, date])
+  @@map("attendances")
+}
+
+model Streak {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  currentStreak  Int      @default(0)
+  longestStreak  Int      @default(0)
+  lastActiveDate DateTime?
+  totalLessons   Int      @default(0)
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("streaks")
+}
+
+model Goal {
+  id              String   @id @default(cuid())
+  userId          String
+  title           String
+  targetPerWeek   Int      @default(5)
+  currentProgress Int      @default(0)
+  weekStart       DateTime
+  isCompleted     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("goals")
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  isGlobal  Boolean  @default(false)
+  courseId   String?
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  author User    @relation("AnnouncementAuthor", fields: [authorId], references: [id])
+
+  @@map("announcements")
+}

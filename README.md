@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Edunova — Eğitim Platformu
 
-## Getting Started
+Edunova, öğrencilerin organize, motive ve kontrol altında hissetmelerini sağlayan modern bir eğitim platformudur.
 
-First, run the development server:
+## Hızlı Başlangıç
+
+### Gereksinimler
+- Node.js 18+
+- PostgreSQL 14+
+- npm
+
+### Kurulum
 
 ```bash
+# Bağımlılıkları yükle
+npm install
+
+# .env dosyasını oluştur
+cp .env.example .env
+# DATABASE_URL ve NEXTAUTH_SECRET değerlerini düzenle
+
+# Prisma client oluştur
+npm run db:generate
+
+# Veritabanı tablolarını oluştur
+npm run db:push
+
+# Demo verilerini yükle
+npm run db:seed
+
+# Geliştirme sunucusunu başlat
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Demo Hesaplar
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Rol | E-posta | Şifre |
+|-----|---------|-------|
+| Öğrenci | ogrenci@edunova.com | 123456 |
+| Öğretmen | ogretmen@edunova.com | 123456 |
+| Yönetici | admin@edunova.com | 123456 |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Teknoloji Stack
 
-## Learn More
+- **Framework:** Next.js 14 (App Router)
+- **Dil:** TypeScript
+- **Veritabanı:** PostgreSQL + Prisma ORM
+- **Auth:** NextAuth.js (Credentials)
+- **Stil:** Tailwind CSS
+- **Validation:** Zod
+- **Icons:** Lucide React
 
-To learn more about Next.js, take a look at the following resources:
+## Proje Yapısı
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+├── app/
+│   ├── (auth)/          # Giriş / Kayıt sayfaları
+│   ├── api/             # API routes
+│   └── panel/
+│       ├── ogrenci/     # Öğrenci paneli
+│       ├── ogretmen/    # Öğretmen paneli
+│       └── yonetici/    # Yönetici paneli
+├── components/
+│   ├── layout/          # Sidebar, DashboardShell
+│   └── ui/              # Button, Card, Input, Badge...
+├── lib/                 # DB, Auth, Utils, Validations
+└── types/               # TypeScript type augmentations
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Sayfa Haritası
 
-## Deploy on Vercel
+### Genel
+- `/` — Landing page
+- `/giris` — Giriş
+- `/kayit` — Kayıt
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Öğrenci (`/panel/ogrenci/`)
+- Ana Sayfa — Motivasyon widget'ları, günün odağı, seri takibi
+- Ders Programı — Haftalık program görünümü
+- Derslerim — Kayıtlı dersler
+- İlerleme — Seri, katılım, kilometre taşları
+- Hedeflerim — Haftalık hedefler
+- Duyurular — Ders ve genel duyurular
+- Profil — Hesap bilgileri
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Öğretmen (`/panel/ogretmen/`)
+- Ana Sayfa — Ders ve öğrenci istatistikleri
+- Ders Programı — Haftalık ders saatleri
+- Derslerim — Verdiği dersler
+- Öğrencilerim — Tüm öğrenciler
+- Duyurular
+- Profil
+
+### Yönetici (`/panel/yonetici/`)
+- Ana Sayfa — Sistem genel bakış
+- Kullanıcılar — Tüm kullanıcı yönetimi
+- Dersler — Ders yönetimi
+- Ders Programı — Tüm program
+- Duyurular — Genel duyuru yönetimi
+- İstatistikler — Sistem metrikleri
+- Ayarlar
