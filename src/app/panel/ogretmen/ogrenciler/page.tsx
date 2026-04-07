@@ -7,6 +7,8 @@ import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Users, Mail, Flame } from "lucide-react";
 
+export const metadata = { title: "Öğrencilerim | Edunova" };
+
 export default async function TeacherStudentsPage() {
   const session = await requireAuth(["TEACHER"]);
 

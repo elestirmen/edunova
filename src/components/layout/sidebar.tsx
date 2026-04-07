@@ -9,6 +9,7 @@ import {
   Bell,
   BookOpen,
   Calendar,
+  ClipboardCheck,
   GraduationCap,
   Home,
   LogOut,
@@ -78,6 +79,7 @@ const teacherGroups: SidebarGroup[] = [
     items: [
       { label: "Ders Programı", href: "/panel/ogretmen/program", icon: Calendar },
       { label: "Derslerim", href: "/panel/ogretmen/dersler", icon: BookOpen },
+      { label: "Yoklama", href: "/panel/ogretmen/yoklama", icon: ClipboardCheck },
       { label: "Öğrencilerim", href: "/panel/ogretmen/ogrenciler", icon: Users },
     ],
   },
@@ -108,6 +110,7 @@ const adminGroups: SidebarGroup[] = [
   {
     title: "Analiz",
     items: [
+      { label: "Hedefler", href: "/panel/yonetici/hedefler", icon: Target },
       { label: "İstatistikler", href: "/panel/yonetici/istatistikler", icon: BarChart3 },
       { label: "Ayarlar", href: "/panel/yonetici/ayarlar", icon: Settings },
     ],

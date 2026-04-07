@@ -78,6 +78,8 @@ model Enrollment {
   course  Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, courseId])
+  @@index([studentId])
+  @@index([courseId])
   @@map("enrollments")
 }
 
@@ -94,6 +96,7 @@ model LessonSlot {
   course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
   attendances Attendance[]
 
+  @@index([courseId])
   @@map("lesson_slots")
 }
 
@@ -110,6 +113,7 @@ model Attendance {
   lessonSlot LessonSlot @relation(fields: [lessonSlotId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, lessonSlotId, date])
+  @@index([studentId])
   @@map("attendances")
 }
 
@@ -140,6 +144,7 @@ model Goal {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("goals")
 }
 
@@ -156,5 +161,7 @@ model Announcement {
   course Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
   author User    @relation("AnnouncementAuthor", fields: [authorId], references: [id])
 
+  @@index([authorId])
+  @@index([courseId])
   @@map("announcements")
 }

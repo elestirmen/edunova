@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Users, BookOpen, TrendingUp, Flame, GraduationCap } from "lucide-react";
 
+export const metadata = { title: "İstatistikler | Edunova" };
+
 export default async function AdminStatsPage() {
   await requireAuth(["ADMIN"]);
 

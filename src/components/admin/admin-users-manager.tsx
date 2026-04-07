@@ -7,6 +7,7 @@ import {
   Save,
   Search,
   Shield,
+  Trash2,
   UserPlus,
   X,
 } from "lucide-react";
@@ -102,6 +103,7 @@ export function AdminUsersManager({ users }: AdminUsersManagerProps) {
   const [drafts, setDrafts] = useState<Record<string, UserFormState>>({});
   const [isCreating, setIsCreating] = useState(false);
   const [savingUserId, setSavingUserId] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [notice, setNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -128,6 +130,24 @@ export function AdminUsersManager({ users }: AdminUsersManagerProps) {
       (statusFilter === "ACTIVE" ? user.isActive : !user.isActive);
     return matchesSearch && matchesRole && matchesStatus;
   });
+
+  async function handleDeleteUser(userId: string, name: string) {
+    if (!window.confirm(`"${name}" kullanıcısını silmek istiyor musunuz?`)) return;
+    setDeletingUserId(userId);
+    setNotice(null);
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
+      const result = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(result?.error ?? "Kullanıcı silinemedi");
+      setNotice({ type: "success", message: "Kullanıcı silindi." });
+      setExpandedUserId(null);
+      router.refresh();
+    } catch (error) {
+      setNotice({ type: "error", message: getApiErrorMessage(error, "Kullanıcı silinemedi.") });
+    } finally {
+      setDeletingUserId(null);
+    }
+  }
 
   async function submitJson(url: string, method: "POST" | "PATCH", body: unknown) {
     const response = await fetch(url, {
@@ -381,6 +401,10 @@ export function AdminUsersManager({ users }: AdminUsersManagerProps) {
                             Giriş izni aktif
                           </label>
                           <div className="flex gap-2">
+                            <Button variant="destructive" size="sm" className="gap-1.5" onClick={() => handleDeleteUser(user.id, `${user.firstName} ${user.lastName}`)} isLoading={deletingUserId === user.id}>
+                              <Trash2 className="h-3.5 w-3.5" />
+                              Sil
+                            </Button>
                             <Button variant="outline" size="sm" onClick={() => setExpandedUserId(null)}>
                               İptal
                             </Button>

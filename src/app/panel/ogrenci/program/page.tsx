@@ -4,6 +4,8 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { WeeklyCalendar } from "@/components/ui/weekly-calendar";
 import type { CalendarSlot } from "@/components/ui/weekly-calendar";
 
+export const metadata = { title: "Ders Programı | Edunova" };
+
 export default async function StudentSchedulePage() {
   const session = await requireAuth(["STUDENT"]);
 

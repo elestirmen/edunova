@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { AdminAnnouncementsManager } from "@/components/admin/admin-announcements-manager";
 
+export const metadata = { title: "Duyuru Yönetimi | Edunova" };
+
 export default async function AdminAnnouncementsPage() {
   await requireAuth(["ADMIN"]);
 

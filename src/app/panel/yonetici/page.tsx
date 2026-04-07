@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+export const metadata = { title: "Yönetici Paneli | Edunova" };
+
 export default async function AdminDashboard() {
   const session = await requireAuth(["ADMIN"]);
 

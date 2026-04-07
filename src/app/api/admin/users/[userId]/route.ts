@@ -123,3 +123,36 @@ export async function PATCH(req: Request, { params }: RouteContext) {
     );
   }
 }
+
+export async function DELETE(_: Request, { params }: RouteContext) {
+  try {
+    const session = await requireAdminApiSession();
+    if (!session) return adminUnauthorizedResponse();
+
+    if (session.user.id === params.userId) {
+      return validationErrorResponse("Kendi hesabınızı silemezsiniz");
+    }
+
+    const user = await db.user.findUnique({
+      where: { id: params.userId },
+      select: {
+        id: true,
+        role: true,
+        _count: { select: { teacherCourses: true } },
+      },
+    });
+
+    if (!user) return validationErrorResponse("Kullanıcı bulunamadı", 404);
+
+    if (user.role === "TEACHER" && user._count.teacherCourses > 0) {
+      return validationErrorResponse("Üzerinde ders bulunan öğretmen silinemez. Önce dersleri başka öğretmene atayın.");
+    }
+
+    await db.user.delete({ where: { id: params.userId } });
+
+    return NextResponse.json({ message: "Kullanıcı silindi" });
+  } catch (error) {
+    console.error("Admin user delete error:", error);
+    return validationErrorResponse("Kullanıcı silinirken bir hata oluştu", 500);
+  }
+}

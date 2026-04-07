@@ -30,6 +30,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+export const metadata = { title: "Ana Sayfa | Edunova" };
+
 export default async function StudentDashboard() {
   const session = await requireAuth(["STUDENT"]);
   const userId = session.user.id;

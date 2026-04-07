@@ -34,7 +34,8 @@ export const registerSchema = z
     email: z
       .string()
       .min(1, "E-posta gerekli")
-      .email("Geçerli bir e-posta adresi girin"),
+      .email("Geçerli bir e-posta adresi girin")
+      .transform((v) => v.toLowerCase()),
     password: z
       .string()
       .min(6, "Şifre en az 6 karakter olmalı")
@@ -55,8 +56,8 @@ export const profileSchema = z.object({
     .string()
     .min(2, "Soyad en az 2 karakter olmalı")
     .max(50, "Soyad en fazla 50 karakter olabilir"),
-  phone: z.string().optional(),
-  bio: z.string().max(500, "Bio en fazla 500 karakter olabilir").optional(),
+  phone: optionalTrimmedString(30),
+  bio: optionalTrimmedString(500),
 });
 
 export const courseSchema = z.object({

@@ -17,6 +17,8 @@ import {
   XCircle,
 } from "lucide-react";
 
+export const metadata = { title: "İlerleme | Edunova" };
+
 export default async function StudentProgressPage() {
   const session = await requireAuth(["STUDENT"]);
   const userId = session.user.id;

@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Settings, Database, Shield, Globe } from "lucide-react";
 
+export const metadata = { title: "Ayarlar | Edunova" };
+
 export default async function AdminSettingsPage() {
   await requireAuth(["ADMIN"]);
 

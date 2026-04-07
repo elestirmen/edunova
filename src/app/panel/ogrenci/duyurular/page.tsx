@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Megaphone, Globe, BookOpen } from "lucide-react";
 
+export const metadata = { title: "Duyurular | Edunova" };
+
 export default async function StudentAnnouncementsPage() {
   const session = await requireAuth(["STUDENT"]);
 

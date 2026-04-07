@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { AdminCoursesManager } from "@/components/admin/admin-courses-manager";
 
+export const metadata = { title: "Ders Yönetimi | Edunova" };
+
 export default async function AdminCoursesPage() {
   await requireAuth(["ADMIN"]);
 

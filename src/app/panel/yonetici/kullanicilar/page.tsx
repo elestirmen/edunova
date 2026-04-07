@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { AdminUsersManager } from "@/components/admin/admin-users-manager";
 
+export const metadata = { title: "Kullanıcı Yönetimi | Edunova" };
+
 export default async function AdminUsersPage() {
   await requireAuth(["ADMIN"]);
 

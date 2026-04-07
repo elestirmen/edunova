@@ -4,6 +4,8 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { AdminScheduleManager } from "@/components/admin/admin-schedule-manager";
 import type { CalendarSlot } from "@/components/ui/weekly-calendar";
 
+export const metadata = { title: "Ders Programı | Edunova" };
+
 export default async function AdminSchedulePage() {
   await requireAuth(["ADMIN"]);
 

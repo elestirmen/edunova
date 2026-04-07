@@ -7,6 +7,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { getDayLabel, formatTime } from "@/lib/utils";
 import { BookOpen, Clock, MapPin, User } from "lucide-react";
 
+export const metadata = { title: "Derslerim | Edunova" };
+
 export default async function StudentCoursesPage() {
   const session = await requireAuth(["STUDENT"]);
 

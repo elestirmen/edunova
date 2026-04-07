@@ -7,6 +7,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Target, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+export const metadata = { title: "Hedeflerim | Edunova" };
+
 export default async function StudentGoalsPage() {
   const session = await requireAuth(["STUDENT"]);
 

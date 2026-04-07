@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,25 @@ export default function StudentProfilePage() {
     phone: "",
     bio: "",
   });
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (loaded) return;
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.firstName) {
+          setFormData({
+            firstName: data.firstName,
+            lastName: data.lastName,
+            phone: data.phone || "",
+            bio: data.bio || "",
+          });
+        }
+        setLoaded(true);
+      })
+      .catch(() => setLoaded(true));
+  }, [loaded]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
