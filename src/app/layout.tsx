@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/layout/providers";
 
-const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
-  title: "Edunova - Eğitim Platformu",
+  title: "Edunova - Özel Ders Operasyon Platformu",
   description:
-    "Edunova ile derslerini takip et, ilerlemeni gör ve hedeflerine ulaş.",
+    "Edunova ile saat paketleri, öğretmen hakedişi, ders teslimleri ve veli iletişimi tek panelde.",
 };
 
 export default function RootLayout({
@@ -17,8 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="tr">
-      <body className={inter.className}>
+    <html lang="tr" suppressHydrationWarning>
+      <body className="font-sans">
         <Providers>{children}</Providers>
       </body>
     </html>

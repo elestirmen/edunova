@@ -28,11 +28,15 @@ export default async function StudentProgressPage() {
     db.attendance.findMany({
       where: { studentId: userId },
       include: {
-        lessonSlot: {
-          include: { course: { select: { name: true, color: true } } },
+        occurrence: {
+          include: {
+            lessonSlot: {
+              include: { course: { select: { name: true, color: true } } },
+            },
+          },
         },
       },
-      orderBy: { date: "desc" },
+      orderBy: { occurrence: { date: "desc" } },
       take: 20,
     }),
   ]);
@@ -173,8 +177,8 @@ export default async function StudentProgressPage() {
                     ) : (
                       <XCircle className="h-4 w-4 shrink-0 text-red-500" />
                     )}
-                    <span className="flex-1 truncate text-sm font-medium">{att.lessonSlot.course.name}</span>
-                    <span className="text-xs text-muted-foreground shrink-0">{new Date(att.date).toLocaleDateString("tr-TR")}</span>
+                    <span className="flex-1 truncate text-sm font-medium">{att.occurrence.lessonSlot.course.name}</span>
+                    <span className="text-xs text-muted-foreground shrink-0">{new Date(att.occurrence.date).toLocaleDateString("tr-TR")}</span>
                     <span className={`text-xs font-medium shrink-0 ${att.isPresent ? "text-emerald-600" : "text-red-500"}`}>
                       {att.isPresent ? "Katildi" : "Katilmadi"}
                     </span>

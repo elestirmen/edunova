@@ -10,7 +10,15 @@ export async function middleware(request: NextRequest) {
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
-  if (pathname.startsWith("/panel") || pathname.startsWith("/api/admin") || pathname.startsWith("/api/teacher") || pathname.startsWith("/api/profile")) {
+  if (
+    pathname.startsWith("/panel") ||
+    pathname.startsWith("/api/admin") ||
+    pathname.startsWith("/api/teacher") ||
+    pathname.startsWith("/api/student") ||
+    pathname.startsWith("/api/parent") ||
+    pathname.startsWith("/api/profile") ||
+    pathname.startsWith("/api/notifications")
+  ) {
     const token = await getToken({ req: request });
 
     if (!token) {
@@ -25,8 +33,13 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith("/api/admin") && token.role !== "ADMIN") {
       return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
     }
-
     if (pathname.startsWith("/api/teacher") && token.role !== "TEACHER") {
+      return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
+    }
+    if (pathname.startsWith("/api/student") && token.role !== "STUDENT") {
+      return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
+    }
+    if (pathname.startsWith("/api/parent") && token.role !== "PARENT") {
       return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
     }
   }
@@ -35,5 +48,13 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/panel/:path*", "/api/admin/:path*", "/api/teacher/:path*", "/api/profile/:path*"],
+  matcher: [
+    "/panel/:path*",
+    "/api/admin/:path*",
+    "/api/teacher/:path*",
+    "/api/student/:path*",
+    "/api/parent/:path*",
+    "/api/profile/:path*",
+    "/api/notifications/:path*",
+  ],
 };

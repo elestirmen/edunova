@@ -8,10 +8,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ============================================================
+//  ENUMS
+// ============================================================
+
 enum Role {
   STUDENT
   TEACHER
   ADMIN
+  PARENT
 }
 
 enum DayOfWeek {
@@ -24,55 +29,146 @@ enum DayOfWeek {
   SUNDAY
 }
 
+enum CourseType {
+  INDIVIDUAL
+  GROUP
+}
+
+enum LessonStatus {
+  SCHEDULED
+  DELIVERED
+  CANCELLED_EARLY
+  CANCELLED_LATE
+  STUDENT_NO_SHOW
+  TEACHER_NO_SHOW
+}
+
+enum HourLedgerReason {
+  PURCHASE
+  LESSON_USED
+  REFUND
+  ADJUSTMENT
+}
+
+enum NotificationType {
+  ANNOUNCEMENT
+  LESSON_REMINDER
+  LESSON_CANCELLED
+  ASSIGNMENT_NEW
+  ASSIGNMENT_GRADED
+  BALANCE_LOW
+  PACKAGE_PURCHASED
+  PAYOUT_READY
+  GENERIC
+}
+
+enum AssignmentStatus {
+  ASSIGNED
+  SUBMITTED
+  GRADED
+  LATE
+}
+
+enum TopicProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  MASTERED
+}
+
+enum MaterialType {
+  PDF
+  LINK
+  VIDEO
+  IMAGE
+  OTHER
+}
+
+// ============================================================
+//  USERS
+// ============================================================
+
 model User {
-  id             String   @id @default(cuid())
-  email          String   @unique
-  passwordHash   String
-  firstName      String
-  lastName       String
-  role           Role     @default(STUDENT)
-  avatarUrl      String?
-  phone          String?
-  bio            String?
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  role          Role     @default(STUDENT)
+  avatarUrl     String?
+  phone         String?
+  bio           String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  enrollments    Enrollment[]
-  teacherCourses Course[]       @relation("CourseTeacher")
-  attendances    Attendance[]
-  streaks        Streak?
-  goals          Goal[]
-  announcements  Announcement[] @relation("AnnouncementAuthor")
+  enrollments       Enrollment[]
+  teacherCourses    Course[]            @relation("CourseTeacher")
+  attendances       Attendance[]
+  streaks           Streak?
+  goals             Goal[]
+  announcements     Announcement[]      @relation("AnnouncementAuthor")
+  teacherRates      TeacherRate[]
+  teacherEarnings   TeacherEarning[]
+  teacherPayouts    TeacherPayout[]
+  teacherAvailability TeacherAvailability[]
+  hourPackages      HourPackage[]
+  hourLedger        HourLedgerEntry[]
+  notifications     Notification[]
+  parentLinks       ParentStudent[]     @relation("ParentUser")
+  studentLinks      ParentStudent[]     @relation("StudentUser")
+  materialsUploaded Material[]          @relation("MaterialUploader")
+  assignmentsCreated Assignment[]       @relation("AssignmentCreator")
+  submissions       Submission[]
+  topicProgress     StudentTopicProgress[]
+  auditLogs         AuditLog[]
+  cancelledLessons  LessonOccurrence[]  @relation("LessonCancelledBy")
 
+  @@index([role])
   @@map("users")
 }
 
+// ============================================================
+//  COURSES & ENROLLMENTS
+// ============================================================
+
 model Course {
-  id          String   @id @default(cuid())
-  name        String
-  code        String   @unique
-  description String?
-  color       String   @default("#6366f1")
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                 String     @id @default(cuid())
+  name               String
+  code               String     @unique
+  description        String?
+  color              String     @default("#6366f1")
+  type               CourseType @default(INDIVIDUAL)
+  maxStudents        Int        @default(1)
+  // Per delivered lesson, how many hours are deducted from each student's balance.
+  // INDIVIDUAL → 1.0   GROUP → 0.7 (default; override per-course)
+  hourCostPerStudent Decimal    @default(1.0) @db.Decimal(5, 2)
+  isActive           Boolean    @default(true)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
 
-  teacherId   String
-  teacher     User     @relation("CourseTeacher", fields: [teacherId], references: [id])
+  teacherId String
+  teacher   User   @relation("CourseTeacher", fields: [teacherId], references: [id])
 
-  enrollments   Enrollment[]
-  lessonSlots   LessonSlot[]
-  announcements Announcement[]
+  enrollments    Enrollment[]
+  lessonSlots    LessonSlot[]
+  announcements  Announcement[]
+  hourPackages   HourPackage[]
+  hourLedger     HourLedgerEntry[]
+  materials      Material[]
+  assignments    Assignment[]
+  topics         Topic[]
 
+  @@index([teacherId])
+  @@index([type])
   @@map("courses")
 }
 
 model Enrollment {
   id        String   @id @default(cuid())
   studentId String
-  courseId   String
+  courseId  String
   createdAt DateTime @default(now())
+  endedAt   DateTime?
 
   student User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
   course  Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -83,48 +179,99 @@ model Enrollment {
   @@map("enrollments")
 }
 
-model LessonSlot {
-  id        String    @id @default(cuid())
-  courseId   String
-  dayOfWeek DayOfWeek
-  startTime String
-  endTime   String
-  room      String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+// ============================================================
+//  SCHEDULE (templates + concrete occurrences)
+// ============================================================
 
-  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  attendances Attendance[]
+model LessonSlot {
+  id                  String    @id @default(cuid())
+  courseId            String
+  dayOfWeek           DayOfWeek
+  startTime           String
+  endTime             String
+  room                String?
+  recurringMeetingUrl String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  course      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  occurrences LessonOccurrence[]
 
   @@index([courseId])
+  @@index([dayOfWeek])
   @@map("lesson_slots")
 }
 
+model LessonOccurrence {
+  id            String       @id @default(cuid())
+  lessonSlotId  String
+  date          DateTime
+  status        LessonStatus @default(SCHEDULED)
+  durationHours Decimal      @default(1.0) @db.Decimal(5, 2)
+  meetingUrl    String?
+  teacherNote   String?
+  cancelledAt   DateTime?
+  cancelledById String?
+  cancelReason  String?
+  deliveredAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  lessonSlot   LessonSlot        @relation(fields: [lessonSlotId], references: [id], onDelete: Cascade)
+  cancelledBy  User?             @relation("LessonCancelledBy", fields: [cancelledById], references: [id])
+  attendances  Attendance[]
+  earnings     TeacherEarning[]
+  ledgerLines  HourLedgerEntry[]
+  topicLinks   LessonOccurrenceTopic[]
+
+  @@unique([lessonSlotId, date])
+  @@index([date, status])
+  @@map("lesson_occurrences")
+}
+
+model LessonOccurrenceTopic {
+  occurrenceId String
+  topicId      String
+
+  occurrence LessonOccurrence @relation(fields: [occurrenceId], references: [id], onDelete: Cascade)
+  topic      Topic            @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@id([occurrenceId, topicId])
+  @@map("lesson_occurrence_topics")
+}
+
+// ============================================================
+//  ATTENDANCE (per-student record under an occurrence)
+// ============================================================
+
 model Attendance {
-  id           String     @id @default(cuid())
+  id           String   @id @default(cuid())
+  occurrenceId String
   studentId    String
-  lessonSlotId String
-  date         DateTime
-  isPresent    Boolean    @default(false)
+  isPresent    Boolean  @default(false)
   note         String?
-  createdAt    DateTime   @default(now())
+  createdAt    DateTime @default(now())
 
-  student    User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  lessonSlot LessonSlot @relation(fields: [lessonSlotId], references: [id], onDelete: Cascade)
+  occurrence LessonOccurrence @relation(fields: [occurrenceId], references: [id], onDelete: Cascade)
+  student    User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  @@unique([studentId, lessonSlotId, date])
+  @@unique([occurrenceId, studentId])
   @@index([studentId])
   @@map("attendances")
 }
 
+// ============================================================
+//  GAMIFICATION
+// ============================================================
+
 model Streak {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  currentStreak  Int      @default(0)
-  longestStreak  Int      @default(0)
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
   lastActiveDate DateTime?
-  totalLessons   Int      @default(0)
-  updatedAt      DateTime @updatedAt
+  totalLessons   Int       @default(0)
+  updatedAt      DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -139,6 +286,9 @@ model Goal {
   currentProgress Int      @default(0)
   weekStart       DateTime
   isCompleted     Boolean  @default(false)
+  // Self-set goals start as proposed; admin can approve or leave as-is.
+  isSelfProposed  Boolean  @default(false)
+  approvedById    String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -148,12 +298,232 @@ model Goal {
   @@map("goals")
 }
 
+// ============================================================
+//  CURRICULUM / TOPICS
+// ============================================================
+
+model Topic {
+  id        String   @id @default(cuid())
+  courseId  String
+  name      String
+  parentId  String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  course        Course                  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  parent        Topic?                  @relation("TopicTree", fields: [parentId], references: [id])
+  children      Topic[]                 @relation("TopicTree")
+  progress      StudentTopicProgress[]
+  occurrences   LessonOccurrenceTopic[]
+  assignments   Assignment[]
+  materials     Material[]
+
+  @@index([courseId])
+  @@map("topics")
+}
+
+model StudentTopicProgress {
+  id          String              @id @default(cuid())
+  studentId   String
+  topicId     String
+  status      TopicProgressStatus @default(NOT_STARTED)
+  masteredAt  DateTime?
+  updatedAt   DateTime            @updatedAt
+
+  student User  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  topic   Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, topicId])
+  @@index([studentId])
+  @@map("student_topic_progress")
+}
+
+// ============================================================
+//  MATERIALS & ASSIGNMENTS
+// ============================================================
+
+model Material {
+  id           String       @id @default(cuid())
+  courseId     String
+  topicId      String?
+  title        String
+  description  String?
+  type         MaterialType @default(LINK)
+  url          String
+  uploadedById String
+  createdAt    DateTime     @default(now())
+
+  course     Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  topic      Topic? @relation(fields: [topicId], references: [id])
+  uploadedBy User   @relation("MaterialUploader", fields: [uploadedById], references: [id])
+
+  @@index([courseId])
+  @@index([topicId])
+  @@map("materials")
+}
+
+model Assignment {
+  id          String   @id @default(cuid())
+  courseId    String
+  topicId     String?
+  createdById String
+  title       String
+  description String?
+  dueDate     DateTime?
+  maxGrade    Int      @default(100)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course    Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  topic     Topic?       @relation(fields: [topicId], references: [id])
+  createdBy User         @relation("AssignmentCreator", fields: [createdById], references: [id])
+  submissions Submission[]
+
+  @@index([courseId])
+  @@map("assignments")
+}
+
+model Submission {
+  id           String           @id @default(cuid())
+  assignmentId String
+  studentId    String
+  fileUrl      String?
+  textAnswer   String?
+  status       AssignmentStatus @default(ASSIGNED)
+  grade        Int?
+  feedback     String?
+  submittedAt  DateTime?
+  gradedAt     DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student    User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, studentId])
+  @@index([studentId])
+  @@map("submissions")
+}
+
+// ============================================================
+//  FINANCE
+// ============================================================
+
+model TeacherRate {
+  id            String     @id @default(cuid())
+  teacherId     String
+  courseType    CourseType
+  hourlyRate    Decimal    @db.Decimal(10, 2)
+  effectiveFrom DateTime   @default(now())
+  effectiveTo   DateTime?
+
+  teacher User @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId, courseType])
+  @@map("teacher_rates")
+}
+
+model TeacherAvailability {
+  id        String    @id @default(cuid())
+  teacherId String
+  dayOfWeek DayOfWeek
+  startTime String
+  endTime   String
+  createdAt DateTime  @default(now())
+
+  teacher User @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+  @@map("teacher_availability")
+}
+
+model HourPackage {
+  id             String   @id @default(cuid())
+  studentId      String
+  courseId       String
+  hoursPurchased Decimal  @db.Decimal(8, 2)
+  pricePaid      Decimal  @db.Decimal(10, 2)
+  purchasedAt    DateTime @default(now())
+  paymentMethod  String?
+  note           String?
+  createdById    String?
+
+  student User             @relation(fields: [studentId], references: [id])
+  course  Course           @relation(fields: [courseId], references: [id])
+  entries HourLedgerEntry[]
+
+  @@index([studentId, courseId])
+  @@map("hour_packages")
+}
+
+model HourLedgerEntry {
+  id           String           @id @default(cuid())
+  studentId    String
+  courseId     String
+  hours        Decimal          @db.Decimal(8, 2)
+  reason       HourLedgerReason
+  packageId    String?
+  occurrenceId String?
+  note         String?
+  createdAt    DateTime         @default(now())
+
+  student    User              @relation(fields: [studentId], references: [id])
+  course     Course            @relation(fields: [courseId], references: [id])
+  package    HourPackage?      @relation(fields: [packageId], references: [id])
+  occurrence LessonOccurrence? @relation(fields: [occurrenceId], references: [id])
+
+  @@index([studentId, courseId])
+  @@index([occurrenceId])
+  @@map("hour_ledger_entries")
+}
+
+model TeacherEarning {
+  id           String   @id @default(cuid())
+  teacherId    String
+  occurrenceId String
+  hours        Decimal  @db.Decimal(8, 2)
+  hourlyRate   Decimal  @db.Decimal(10, 2)
+  amount       Decimal  @db.Decimal(12, 2)
+  payoutId     String?
+  createdAt    DateTime @default(now())
+
+  teacher    User             @relation(fields: [teacherId], references: [id])
+  occurrence LessonOccurrence @relation(fields: [occurrenceId], references: [id])
+  payout     TeacherPayout?   @relation(fields: [payoutId], references: [id])
+
+  @@index([teacherId, payoutId])
+  @@index([occurrenceId])
+  @@map("teacher_earnings")
+}
+
+model TeacherPayout {
+  id          String    @id @default(cuid())
+  teacherId   String
+  periodStart DateTime
+  periodEnd   DateTime
+  amount      Decimal   @db.Decimal(12, 2)
+  paidAt      DateTime?
+  paymentRef  String?
+  note        String?
+  createdAt   DateTime  @default(now())
+
+  teacher  User             @relation(fields: [teacherId], references: [id])
+  earnings TeacherEarning[]
+
+  @@index([teacherId, paidAt])
+  @@map("teacher_payouts")
+}
+
+// ============================================================
+//  ANNOUNCEMENTS / NOTIFICATIONS
+// ============================================================
+
 model Announcement {
   id        String   @id @default(cuid())
   title     String
   content   String
   isGlobal  Boolean  @default(false)
-  courseId   String?
+  courseId  String?
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -164,4 +534,73 @@ model Announcement {
   @@index([authorId])
   @@index([courseId])
   @@map("announcements")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String?
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+// ============================================================
+//  PARENT LINK
+// ============================================================
+
+model ParentStudent {
+  id        String   @id @default(cuid())
+  parentId  String
+  studentId String
+  createdAt DateTime @default(now())
+
+  parent  User @relation("ParentUser", fields: [parentId], references: [id], onDelete: Cascade)
+  student User @relation("StudentUser", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, studentId])
+  @@index([studentId])
+  @@map("parent_students")
+}
+
+// ============================================================
+//  CALENDAR (holidays / exceptional days)
+// ============================================================
+
+model Holiday {
+  id        String   @id @default(cuid())
+  date      DateTime @db.Date
+  name      String
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@unique([date])
+  @@map("holidays")
+}
+
+// ============================================================
+//  AUDIT LOG
+// ============================================================
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  targetType String?
+  targetId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([targetType, targetId])
+  @@map("audit_logs")
 }

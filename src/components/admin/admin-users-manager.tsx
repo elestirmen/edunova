@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn, getRoleLabel } from "@/lib/utils";
 
-type AdminRole = "STUDENT" | "TEACHER" | "ADMIN";
+type AdminRole = "STUDENT" | "TEACHER" | "ADMIN" | "PARENT";
 
 interface AdminUser {
   id: string;

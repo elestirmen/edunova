@@ -15,7 +15,7 @@
     --secondary: 160 18% 95%;
     --secondary-foreground: 170 40% 15%;
     --muted: 160 14% 95%;
-    --muted-foreground: 170 10% 44%;
+    --muted-foreground: 170 10% 35%;
     --accent: 168 40% 93%;
     --accent-foreground: 168 56% 30%;
     --destructive: 0 84% 60%;
@@ -27,7 +27,31 @@
     --border: 165 13% 90%;
     --input: 165 13% 90%;
     --ring: 168 56% 40%;
-    --radius: 1rem;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 200 20% 8%;
+    --foreground: 160 10% 95%;
+    --card: 200 20% 12%;
+    --card-foreground: 160 10% 95%;
+    --popover: 200 20% 12%;
+    --popover-foreground: 160 10% 95%;
+    --primary: 168 56% 48%;
+    --primary-foreground: 200 20% 8%;
+    --secondary: 200 15% 18%;
+    --secondary-foreground: 160 10% 90%;
+    --muted: 200 15% 18%;
+    --muted-foreground: 160 10% 65%;
+    --accent: 200 25% 22%;
+    --accent-foreground: 168 56% 70%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 50% 45%;
+    --warning: 38 92% 55%;
+    --border: 200 15% 22%;
+    --input: 200 15% 22%;
+    --ring: 168 56% 48%;
   }
 }
 
@@ -37,6 +61,10 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+  }
+  /* Klavye odak görünürlüğü */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }
 
@@ -50,45 +78,16 @@
   .gradient-streak {
     background: linear-gradient(135deg, hsl(25 90% 55%) 0%, hsl(12 80% 52%) 100%);
   }
-  .gradient-card-blue {
-    background: linear-gradient(135deg, hsl(170 40% 95%) 0%, hsl(185 40% 96%) 100%);
-  }
   .gradient-card-green {
     background: linear-gradient(135deg, hsl(152 50% 94%) 0%, hsl(140 45% 95%) 100%);
-  }
-  .gradient-card-purple {
-    background: linear-gradient(135deg, hsl(168 50% 94%) 0%, hsl(175 40% 95%) 100%);
-  }
-  .gradient-card-orange {
-    background: linear-gradient(135deg, hsl(25 90% 95%) 0%, hsl(38 85% 95%) 100%);
   }
   .text-gradient {
     @apply bg-clip-text text-transparent;
     background-image: linear-gradient(135deg, hsl(170 55% 38%) 0%, hsl(145 50% 42%) 100%);
   }
 
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-6px); }
-  }
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(43, 181, 160, 0.3); }
-    50% { box-shadow: 0 0 20px 4px rgba(43, 181, 160, 0.15); }
-  }
-  .animate-pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
-  }
-
-  @keyframes shake {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-8deg); }
-    75% { transform: rotate(8deg); }
-  }
-  .animate-shake {
-    animation: shake 0.5s ease-in-out;
+  /* İskelet (skeleton) — yükleme animasyonu */
+  .skeleton {
+    @apply rounded-md bg-muted animate-pulse;
   }
 }

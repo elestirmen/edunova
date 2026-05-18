@@ -133,7 +133,7 @@ export const adminUserCreateSchema = z.object({
     .string()
     .min(6, "Şifre en az 6 karakter olmalı")
     .max(100, "Şifre en fazla 100 karakter olabilir"),
-  role: z.enum(["STUDENT", "TEACHER", "ADMIN"]),
+  role: z.enum(["STUDENT", "TEACHER", "ADMIN", "PARENT"]),
   phone: optionalTrimmedString(30),
   bio: optionalTrimmedString(500),
   isActive: z.boolean().default(true),
@@ -156,7 +156,7 @@ export const adminUserUpdateSchema = z.object({
     .min(1, "E-posta gerekli")
     .email("Geçerli bir e-posta adresi girin")
     .transform((value) => value.toLowerCase()),
-  role: z.enum(["STUDENT", "TEACHER", "ADMIN"]),
+  role: z.enum(["STUDENT", "TEACHER", "ADMIN", "PARENT"]),
   phone: optionalTrimmedString(30),
   bio: optionalTrimmedString(500),
   isActive: z.boolean(),
@@ -196,8 +196,95 @@ export const adminCourseSchema = z.object({
     .regex(/^#([A-Fa-f0-9]{6})$/, "Geçerli bir renk kodu girin")
     .default("#6366F1"),
   teacherId: z.string().min(1, "Öğretmen seçimi gerekli"),
+  type: z.enum(["INDIVIDUAL", "GROUP"]).default("INDIVIDUAL"),
+  maxStudents: z.coerce.number().int().min(1).max(20).default(1),
+  hourCostPerStudent: z.coerce.number().min(0.1).max(2).default(1.0),
   isActive: z.boolean().default(true),
   studentIds: z.array(z.string()).default([]),
+});
+
+export const hourPackageSchema = z.object({
+  studentId: z.string().min(1, "Öğrenci seçimi gerekli"),
+  courseId: z.string().min(1, "Ders seçimi gerekli"),
+  hoursPurchased: z.coerce.number().min(0.5, "En az 0.5 saat").max(1000),
+  pricePaid: z.coerce.number().min(0).max(1000000),
+  paymentMethod: optionalTrimmedString(50),
+  note: optionalTrimmedString(500),
+});
+
+export const teacherRateSchema = z.object({
+  teacherId: z.string().min(1, "Öğretmen gerekli"),
+  courseType: z.enum(["INDIVIDUAL", "GROUP"]),
+  hourlyRate: z.coerce.number().min(0).max(100000),
+  effectiveFrom: z.coerce.date().optional(),
+});
+
+export const holidaySchema = z.object({
+  date: z.coerce.date(),
+  name: z.string().trim().min(2).max(100),
+  reason: optionalTrimmedString(500),
+});
+
+export const topicSchema = z.object({
+  courseId: z.string().min(1),
+  name: z.string().trim().min(1).max(200),
+  parentId: optionalTrimmedString(255),
+  order: z.coerce.number().int().default(0),
+});
+
+export const materialSchema = z.object({
+  courseId: z.string().min(1),
+  topicId: optionalTrimmedString(255),
+  title: z.string().trim().min(1).max(200),
+  description: optionalTrimmedString(1000),
+  type: z.enum(["PDF", "LINK", "VIDEO", "IMAGE", "OTHER"]).default("LINK"),
+  url: z.string().trim().url("Geçerli bir URL girin"),
+});
+
+export const assignmentSchema = z.object({
+  courseId: z.string().min(1),
+  topicId: optionalTrimmedString(255),
+  title: z.string().trim().min(2).max(200),
+  description: optionalTrimmedString(5000),
+  dueDate: z.coerce.date().optional(),
+  maxGrade: z.coerce.number().int().min(1).max(1000).default(100),
+});
+
+export const submissionGradeSchema = z.object({
+  grade: z.coerce.number().int().min(0).max(1000),
+  feedback: optionalTrimmedString(2000),
+});
+
+export const submissionAnswerSchema = z.object({
+  textAnswer: optionalTrimmedString(10000),
+  fileUrl: optionalTrimmedString(500),
+});
+
+export const selfGoalSchema = z.object({
+  title: z.string().trim().min(2).max(200),
+  targetPerWeek: z.coerce.number().int().min(1).max(50),
+});
+
+export const deliverLessonSchema = z.object({
+  occurrenceId: z.string().optional(),
+  lessonSlotId: z.string().optional(),
+  date: z.coerce.date(),
+  teacherNote: optionalTrimmedString(5000),
+  durationHours: z.coerce.number().min(0.25).max(12).optional(),
+  topicIds: z.array(z.string()).optional(),
+  attendanceMap: z.record(z.string(), z.boolean()).optional(),
+});
+
+export const cancelLessonSchema = z.object({
+  occurrenceId: z.string().optional(),
+  lessonSlotId: z.string().optional(),
+  date: z.coerce.date().optional(),
+  reason: z.string().trim().min(2).max(500),
+});
+
+export const parentLinkSchema = z.object({
+  parentId: z.string().min(1),
+  studentId: z.string().min(1),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -209,3 +296,15 @@ export type AnnouncementInput = z.infer<typeof announcementSchema>;
 export type AdminUserCreateInput = z.infer<typeof adminUserCreateSchema>;
 export type AdminUserUpdateInput = z.infer<typeof adminUserUpdateSchema>;
 export type AdminCourseInput = z.infer<typeof adminCourseSchema>;
+export type HourPackageInput = z.infer<typeof hourPackageSchema>;
+export type TeacherRateInput = z.infer<typeof teacherRateSchema>;
+export type HolidayInput = z.infer<typeof holidaySchema>;
+export type TopicInput = z.infer<typeof topicSchema>;
+export type MaterialInput = z.infer<typeof materialSchema>;
+export type AssignmentInput = z.infer<typeof assignmentSchema>;
+export type SubmissionGradeInput = z.infer<typeof submissionGradeSchema>;
+export type SubmissionAnswerInput = z.infer<typeof submissionAnswerSchema>;
+export type SelfGoalInput = z.infer<typeof selfGoalSchema>;
+export type DeliverLessonInput = z.infer<typeof deliverLessonSchema>;
+export type CancelLessonInput = z.infer<typeof cancelLessonSchema>;
+export type ParentLinkInput = z.infer<typeof parentLinkSchema>;

@@ -1,3 +1,6 @@
+import { NotificationBell } from "./notification-bell";
+import { ThemeToggle } from "./theme-toggle";
+
 interface DashboardShellProps {
   title: string;
   description?: string;
@@ -22,7 +25,11 @@ export function DashboardShell({
                 <p className="truncate text-xs text-muted-foreground">{description}</p>
               )}
             </div>
-            {action && <div className="shrink-0 ml-4">{action}</div>}
+            <div className="flex items-center gap-1 shrink-0 ml-4">
+              {action}
+              <ThemeToggle />
+              <NotificationBell />
+            </div>
           </div>
         </header>
         <main className="p-4 sm:p-6 lg:p-8">{children}</main>

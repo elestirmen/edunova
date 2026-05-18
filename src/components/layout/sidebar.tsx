@@ -7,18 +7,29 @@ import { cn } from "@/lib/utils";
 import {
   BarChart3,
   Bell,
+  BookMarked,
   BookOpen,
+  Briefcase,
   Calendar,
+  CalendarOff,
   ClipboardCheck,
+  ClipboardList,
+  Coins,
+  FileText,
+  FolderOpen,
   GraduationCap,
+  Heart,
+  History,
   Home,
   LogOut,
   Menu,
+  Package,
   Settings,
   Target,
   TrendingUp,
   UserCog,
   Users,
+  Wallet,
   X,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
@@ -45,16 +56,14 @@ interface SidebarProps {
 }
 
 const studentGroups: SidebarGroup[] = [
-  {
-    items: [
-      { label: "Ana Sayfa", href: "/panel/ogrenci", icon: Home },
-    ],
-  },
+  { items: [{ label: "Ana Sayfa", href: "/panel/ogrenci", icon: Home }] },
   {
     title: "Eğitim",
     items: [
       { label: "Ders Programı", href: "/panel/ogrenci/program", icon: Calendar },
       { label: "Derslerim", href: "/panel/ogrenci/dersler", icon: BookOpen },
+      { label: "Ödevlerim", href: "/panel/ogrenci/odevler", icon: ClipboardList },
+      { label: "Materyaller", href: "/panel/ogrenci/materyaller", icon: FolderOpen },
       { label: "İlerleme", href: "/panel/ogrenci/ilerleme", icon: TrendingUp },
       { label: "Hedeflerim", href: "/panel/ogrenci/hedefler", icon: Target },
     ],
@@ -69,18 +78,22 @@ const studentGroups: SidebarGroup[] = [
 ];
 
 const teacherGroups: SidebarGroup[] = [
-  {
-    items: [
-      { label: "Ana Sayfa", href: "/panel/ogretmen", icon: Home },
-    ],
-  },
+  { items: [{ label: "Ana Sayfa", href: "/panel/ogretmen", icon: Home }] },
   {
     title: "Yönetim",
     items: [
       { label: "Ders Programı", href: "/panel/ogretmen/program", icon: Calendar },
       { label: "Derslerim", href: "/panel/ogretmen/dersler", icon: BookOpen },
       { label: "Yoklama", href: "/panel/ogretmen/yoklama", icon: ClipboardCheck },
+      { label: "Ödevler", href: "/panel/ogretmen/odevler", icon: ClipboardList },
+      { label: "Materyaller", href: "/panel/ogretmen/materyaller", icon: FolderOpen },
       { label: "Öğrencilerim", href: "/panel/ogretmen/ogrenciler", icon: Users },
+    ],
+  },
+  {
+    title: "Finans",
+    items: [
+      { label: "Kazançlarım", href: "/panel/ogretmen/kazanclar", icon: Wallet },
     ],
   },
   {
@@ -93,18 +106,30 @@ const teacherGroups: SidebarGroup[] = [
 ];
 
 const adminGroups: SidebarGroup[] = [
+  { items: [{ label: "Ana Sayfa", href: "/panel/yonetici", icon: Home }] },
   {
+    title: "Kişiler",
     items: [
-      { label: "Ana Sayfa", href: "/panel/yonetici", icon: Home },
+      { label: "Kullanıcılar", href: "/panel/yonetici/kullanicilar", icon: Users },
+      { label: "Veliler", href: "/panel/yonetici/veliler", icon: Heart },
     ],
   },
   {
-    title: "Yönetim",
+    title: "Eğitim",
     items: [
-      { label: "Kullanıcılar", href: "/panel/yonetici/kullanicilar", icon: Users },
       { label: "Dersler", href: "/panel/yonetici/dersler", icon: BookOpen },
       { label: "Ders Programı", href: "/panel/yonetici/program", icon: Calendar },
+      { label: "Müfredat", href: "/panel/yonetici/mufredat", icon: BookMarked },
+      { label: "Tatiller", href: "/panel/yonetici/tatiller", icon: CalendarOff },
       { label: "Duyurular", href: "/panel/yonetici/duyurular", icon: Bell },
+    ],
+  },
+  {
+    title: "Finans",
+    items: [
+      { label: "Saat Paketleri", href: "/panel/yonetici/paketler", icon: Package },
+      { label: "Öğretmen Hakediş", href: "/panel/yonetici/hakedis", icon: Coins },
+      { label: "Öğretmen Ücretleri", href: "/panel/yonetici/ucretler", icon: Briefcase },
     ],
   },
   {
@@ -112,7 +137,27 @@ const adminGroups: SidebarGroup[] = [
     items: [
       { label: "Hedefler", href: "/panel/yonetici/hedefler", icon: Target },
       { label: "İstatistikler", href: "/panel/yonetici/istatistikler", icon: BarChart3 },
+      { label: "Denetim Kayıtları", href: "/panel/yonetici/denetim", icon: History },
       { label: "Ayarlar", href: "/panel/yonetici/ayarlar", icon: Settings },
+    ],
+  },
+];
+
+const parentGroups: SidebarGroup[] = [
+  { items: [{ label: "Ana Sayfa", href: "/panel/veli", icon: Home }] },
+  {
+    title: "Çocuğum",
+    items: [
+      { label: "Bakiye & Paketler", href: "/panel/veli/bakiye", icon: Wallet },
+      { label: "Ders Kayıtları", href: "/panel/veli/dersler", icon: BookOpen },
+      { label: "Haftalık Özet", href: "/panel/veli/ozet", icon: FileText },
+    ],
+  },
+  {
+    title: "Diğer",
+    items: [
+      { label: "Duyurular", href: "/panel/veli/duyurular", icon: Bell },
+      { label: "Profil", href: "/panel/veli/profil", icon: Settings },
     ],
   },
 ];
@@ -125,6 +170,8 @@ function getGroups(role: string): SidebarGroup[] {
       return teacherGroups;
     case "ADMIN":
       return adminGroups;
+    case "PARENT":
+      return parentGroups;
     default:
       return [];
   }
@@ -134,20 +181,37 @@ const roleLabels: Record<string, string> = {
   STUDENT: "Öğrenci",
   TEACHER: "Öğretmen",
   ADMIN: "Yönetici",
+  PARENT: "Veli",
 };
 
 const roleIcons: Record<string, LucideIcon> = {
   STUDENT: GraduationCap,
   TEACHER: BookOpen,
   ADMIN: UserCog,
+  PARENT: Heart,
 };
+
+function rolePath(role: string): string {
+  switch (role) {
+    case "STUDENT":
+      return "/panel/ogrenci";
+    case "TEACHER":
+      return "/panel/ogretmen";
+    case "ADMIN":
+      return "/panel/yonetici";
+    case "PARENT":
+      return "/panel/veli";
+    default:
+      return "/panel";
+  }
+}
 
 export function Sidebar({ role, firstName, lastName }: SidebarProps) {
   const pathname = usePathname();
   const groups = getGroups(role);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const basePath = `/panel/${role === "STUDENT" ? "ogrenci" : role === "TEACHER" ? "ogretmen" : "yonetici"}`;
+  const basePath = rolePath(role);
   const RoleIcon = roleIcons[role] ?? GraduationCap;
 
   const sidebarContent = (
@@ -183,10 +247,14 @@ export function Sidebar({ role, firstName, lastName }: SidebarProps) {
                         : "text-muted-foreground hover:bg-accent hover:text-foreground"
                     )}
                   >
-                    <Icon className={cn(
-                      "h-4 w-4 shrink-0 transition-colors",
-                      isActive ? "text-primary" : "text-muted-foreground/70 group-hover:text-foreground"
-                    )} />
+                    <Icon
+                      className={cn(
+                        "h-4 w-4 shrink-0 transition-colors",
+                        isActive
+                          ? "text-primary"
+                          : "text-muted-foreground/70 group-hover:text-foreground"
+                      )}
+                    />
                     {link.label}
                     {isActive && (
                       <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
@@ -214,7 +282,7 @@ export function Sidebar({ role, firstName, lastName }: SidebarProps) {
         </div>
         <button
           onClick={() => signOut({ callbackUrl: "/giris" })}
-          className="mt-1 flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600"
+          className="mt-1 flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40"
         >
           <LogOut className="h-4 w-4" />
           Çıkış Yap
