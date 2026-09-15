@@ -6,6 +6,7 @@ import { BookMarked, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { selectClassName } from "@/components/ui/select";
 
 interface Course {
   id: string;
@@ -19,8 +20,6 @@ interface Topic {
   order: number;
 }
 
-const selectClassName =
-  "flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm";
 
 export function AdminTopicsManager({
   courses,

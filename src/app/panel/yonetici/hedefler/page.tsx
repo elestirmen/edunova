@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { AdminGoalsManager } from "@/components/admin/admin-goals-manager";
 
-export const metadata = { title: "Hedef Yönetimi | Edunova" };
+export const metadata = { title: "Hedef Yönetimi" };
 
 export default async function AdminGoalsPage() {
   await requireAuth(["ADMIN"]);
@@ -21,7 +21,8 @@ export default async function AdminGoalsPage() {
   ]);
 
   return (
-    <DashboardShell title="Hedef Yönetimi" description="Öğrenci haftalık hedeflerini oluşturun ve yönetin">
+    <DashboardShell
+      eyebrow="Analiz" title="Hedef Yönetimi" description="Öğrenci haftalık hedeflerini oluşturun ve yönetin">
       <AdminGoalsManager
         goals={goals.map((g) => ({
           id: g.id,

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, Plus, Target, Trash2, X } from "lucide-react";
+import { selectClassName } from "@/components/ui/select";
 
 interface GoalRecord {
   id: string;
@@ -34,7 +35,6 @@ interface AdminGoalsManagerProps {
   students: StudentOption[];
 }
 
-const selectClassName = "flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
 export function AdminGoalsManager({ goals, students }: AdminGoalsManagerProps) {
   const router = useRouter();
@@ -99,9 +99,9 @@ export function AdminGoalsManager({ goals, students }: AdminGoalsManagerProps) {
   return (
     <div className="space-y-6">
       {notice && (
-        <div className={cn("flex items-center justify-between rounded-lg border px-4 py-2.5 text-sm", notice.type === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700")}>
+        <div className={cn("flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-[13px] font-medium", notice.type === "success" ? "border-leaf-500/25 bg-leaf-500/10 text-leaf-700 dark:text-leaf-300" : "border-destructive/25 bg-destructive/10 text-destructive")}>
           {notice.message}
-          <button onClick={() => setNotice(null)} className="ml-2 shrink-0 rounded p-0.5 hover:bg-black/5"><X className="h-3.5 w-3.5" /></button>
+          <button onClick={() => setNotice(null)} className="ml-2 shrink-0 rounded p-0.5 hover:bg-foreground/10"><X className="h-3.5 w-3.5" /></button>
         </div>
       )}
 
@@ -190,7 +190,7 @@ export function AdminGoalsManager({ goals, students }: AdminGoalsManagerProps) {
                       <span className="text-[11px] text-muted-foreground">{goal.currentProgress}/{goal.targetPerWeek}</span>
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm" className="shrink-0 h-8 w-8 p-0 text-muted-foreground hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(goal.id)} disabled={deletingId === goal.id}>
+                  <Button variant="ghost" size="sm" className="shrink-0 h-8 w-8 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(goal.id)} disabled={deletingId === goal.id}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>

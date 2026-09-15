@@ -54,14 +54,14 @@ export default function StudentProfilePage() {
       });
 
       if (res.ok) {
-        setNotice({ type: "success", message: "Profil basariyla guncellendi." });
+        setNotice({ type: "success", message: "Profil başarıyla güncellendi." });
         await update();
         setTimeout(() => setNotice(null), 3000);
       } else {
-        setNotice({ type: "error", message: "Profil guncellenemedi." });
+        setNotice({ type: "error", message: "Profil güncellenemedi." });
       }
     } catch {
-      setNotice({ type: "error", message: "Bir hata olustu." });
+      setNotice({ type: "error", message: "Bir hata oluştu." });
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +70,7 @@ export default function StudentProfilePage() {
   if (!session) return null;
 
   return (
-    <DashboardShell title="Profil" description="Hesap bilgilerini duzenle">
+    <DashboardShell title="Profil" eyebrow="Öğrenci" description="Hesap bilgilerini düzenle">
       <div className="mx-auto max-w-2xl space-y-6">
         <Card>
           <CardHeader>
@@ -79,7 +79,7 @@ export default function StudentProfilePage() {
               <div>
                 <CardTitle>{session.user.firstName} {session.user.lastName}</CardTitle>
                 <p className="text-sm text-muted-foreground">{session.user.email}</p>
-                <Badge variant="secondary" className="mt-1">Ogrenci</Badge>
+                <Badge variant="secondary" className="mt-1">Öğrenci</Badge>
               </div>
             </div>
           </CardHeader>
@@ -91,9 +91,9 @@ export default function StudentProfilePage() {
           </CardHeader>
           <CardContent>
             {notice && (
-              <div className={`mb-4 flex items-center justify-between rounded-lg px-3 py-2.5 text-sm ${notice.type === "success" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
+              <div className={`mb-4 flex items-center justify-between gap-3 rounded-xl px-3.5 py-3 text-[13px] font-medium ${notice.type === "success" ? "bg-leaf-500/10 text-leaf-700 dark:text-leaf-300" : "bg-destructive/10 text-destructive"}`}>
                 {notice.message}
-                <button onClick={() => setNotice(null)} className="ml-2 rounded p-0.5 hover:bg-black/5"><X className="h-3.5 w-3.5" /></button>
+                <button onClick={() => setNotice(null)} className="ml-2 rounded p-0.5 hover:bg-foreground/10"><X className="h-3.5 w-3.5" /></button>
               </div>
             )}
 
@@ -102,7 +102,7 @@ export default function StudentProfilePage() {
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Ad</label>
                   <div className="relative">
-                    <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input value={formData.firstName} onChange={(e) => setFormData((p) => ({ ...p, firstName: e.target.value }))} className="pl-10 h-9" />
                   </div>
                 </div>
@@ -115,7 +115,7 @@ export default function StudentProfilePage() {
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-muted-foreground">E-posta</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input value={session.user.email} disabled className="pl-10 h-9" />
                 </div>
               </div>
@@ -123,14 +123,14 @@ export default function StudentProfilePage() {
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Telefon</label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input value={formData.phone} onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))} placeholder="05XX XXX XX XX" className="pl-10 h-9" />
                 </div>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Hakkimda</label>
-                <Textarea value={formData.bio} onChange={(e) => setFormData((p) => ({ ...p, bio: e.target.value }))} placeholder="Kendinden kisaca bahset..." rows={3} />
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Hakkımda</label>
+                <Textarea value={formData.bio} onChange={(e) => setFormData((p) => ({ ...p, bio: e.target.value }))} placeholder="Kendinden kısaca bahset…" rows={3} />
               </div>
 
               <Button type="submit" size="sm" isLoading={isLoading} className="gap-1.5">

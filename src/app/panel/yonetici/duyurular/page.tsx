@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { AdminAnnouncementsManager } from "@/components/admin/admin-announcements-manager";
 
-export const metadata = { title: "Duyuru Yönetimi | Edunova" };
+export const metadata = { title: "Duyuru Yönetimi" };
 
 export default async function AdminAnnouncementsPage() {
   await requireAuth(["ADMIN"]);
@@ -38,6 +38,7 @@ export default async function AdminAnnouncementsPage() {
 
   return (
     <DashboardShell
+      eyebrow="Eğitim"
       title="Duyuru Yönetimi"
       description="Genel ve derse özel duyuruları yayınlayın ve düzenleyin"
     >

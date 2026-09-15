@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { AdminParentsManager } from "@/components/admin/admin-parents-manager";
 
-export const metadata = { title: "Veliler | Edunova" };
+export const metadata = { title: "Veliler" };
 
 export default async function AdminParentsPage() {
   await requireAuth(["ADMIN"]);
@@ -28,7 +28,8 @@ export default async function AdminParentsPage() {
   ]);
 
   return (
-    <DashboardShell title="Veliler" description="Veli-öğrenci eşleştirmeleri">
+    <DashboardShell
+      eyebrow="Kişiler" title="Veliler" description="Veli-öğrenci eşleştirmeleri">
       <AdminParentsManager
         parents={parents}
         students={students}

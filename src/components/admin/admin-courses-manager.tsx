@@ -25,6 +25,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { selectClassName } from "@/components/ui/select";
 
 interface TeacherOption {
   id: string;
@@ -72,8 +73,6 @@ interface AdminCoursesManagerProps {
   students: StudentOption[];
 }
 
-const selectClassName =
-  "flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
 const emptyCourseForm: CourseFormState = {
   name: "",
@@ -229,16 +228,16 @@ export function AdminCoursesManager({ courses, teachers, students }: AdminCourse
 
       {/* Notice */}
       {notice && (
-        <div className={cn("flex items-center justify-between rounded-lg border px-4 py-2.5 text-sm", notice.type === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700")}>
+        <div className={cn("flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-[13px] font-medium", notice.type === "success" ? "border-leaf-500/25 bg-leaf-500/10 text-leaf-700 dark:text-leaf-300" : "border-destructive/25 bg-destructive/10 text-destructive")}>
           {notice.message}
-          <button onClick={() => setNotice(null)} className="ml-2 shrink-0 rounded p-0.5 hover:bg-black/5"><X className="h-3.5 w-3.5" /></button>
+          <button onClick={() => setNotice(null)} className="ml-2 shrink-0 rounded p-0.5 hover:bg-foreground/10"><X className="h-3.5 w-3.5" /></button>
         </div>
       )}
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)} className="h-9 pl-9 text-sm" placeholder="Ders adı, kodu veya öğretmen ara..." />
         </div>
         <Button size="sm" className="gap-1.5 h-9" onClick={() => setShowCreateForm(!showCreateForm)}>
@@ -341,7 +340,7 @@ export function AdminCoursesManager({ courses, teachers, students }: AdminCourse
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="shrink-0 h-8 w-8 p-0 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                        className="shrink-0 h-8 w-8 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                         onClick={() => handleDeleteCourse(course.id, course.name)}
                         disabled={deletingCourseId === course.id}
                       >
@@ -460,9 +459,11 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function MiniStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border bg-card p-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 text-2xl font-bold leading-none">{value}</p>
+    <div className="rounded-2xl border bg-card p-4 shadow-sm">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        {label}
+      </p>
+      <p className="tabular mt-2 text-2xl font-bold leading-none tracking-tight">{value}</p>
     </div>
   );
 }

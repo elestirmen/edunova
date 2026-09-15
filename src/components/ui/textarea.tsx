@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { inputBaseClass } from "./input";
 
 export interface TextareaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -13,13 +14,16 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         <textarea
           ref={ref}
           className={cn(
-            "flex min-h-[96px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-            error && "border-destructive focus-visible:ring-destructive",
+            inputBaseClass,
+            "h-auto min-h-[104px] resize-y py-2.5 leading-relaxed",
+            error &&
+              "border-destructive/60 focus-visible:border-destructive focus-visible:ring-destructive/15",
             className
           )}
+          aria-invalid={error ? true : undefined}
           {...props}
         />
-        {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+        {error && <p className="mt-1.5 text-xs font-medium text-destructive">{error}</p>}
       </div>
     );
   }

@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { getDayLabel, formatTime } from "@/lib/utils";
 import { BookOpen, Clock, MapPin, User } from "lucide-react";
 
-export const metadata = { title: "Derslerim | Edunova" };
+export const metadata = { title: "Derslerim" };
 
 export default async function StudentCoursesPage() {
   const session = await requireAuth(["STUDENT"]);
@@ -27,7 +27,8 @@ export default async function StudentCoursesPage() {
 
   if (enrollments.length === 0) {
     return (
-      <DashboardShell title="Derslerim" description="Kayıtlı olduğun dersler">
+      <DashboardShell
+      eyebrow="Öğrenci" title="Derslerim" description="Kayıtlı olduğun dersler">
         <EmptyState
           icon={BookOpen}
           title="Henüz dersin yok"

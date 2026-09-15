@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { AdminTeacherRatesManager } from "@/components/admin/admin-teacher-rates-manager";
 
-export const metadata = { title: "Öğretmen Ücretleri | Edunova" };
+export const metadata = { title: "Öğretmen Ücretleri" };
 
 export default async function AdminRatesPage() {
   await requireAuth(["ADMIN"]);
@@ -26,7 +26,8 @@ export default async function AdminRatesPage() {
   }));
 
   return (
-    <DashboardShell title="Öğretmen Ücretleri" description="Saatlik tarifeler (birebir ve grup için ayrı)">
+    <DashboardShell
+      eyebrow="Finans" title="Öğretmen Ücretleri" description="Saatlik tarifeler (birebir ve grup için ayrı)">
       <AdminTeacherRatesManager
         rows={grouped.map((g) => ({
           teacherId: g.teacher.id,

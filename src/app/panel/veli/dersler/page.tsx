@@ -7,7 +7,7 @@ import { CheckCircle2, XCircle, AlertTriangle, Calendar } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { LessonStatus } from "@prisma/client";
 
-export const metadata = { title: "Ders Kayıtları | Edunova" };
+export const metadata = { title: "Ders Kayıtları" };
 
 const statusLabel: Record<LessonStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" | "success" | "warning" }> = {
   SCHEDULED: { label: "Planlandı", variant: "outline" },
@@ -47,7 +47,8 @@ export default async function ParentLessonsPage() {
   );
 
   return (
-    <DashboardShell title="Ders Kayıtları" description="Çocuğunun ders devamlılığı">
+    <DashboardShell
+      eyebrow="Veli" title="Ders Kayıtları" description="Çocuğunun ders devamlılığı">
       <div className="space-y-6">
         {data.map((d) => (
           <Card key={d.student.id}>

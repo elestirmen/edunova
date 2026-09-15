@@ -5,8 +5,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bell } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
 
-export const metadata = { title: "Duyurular | Edunova" };
+export const metadata = { title: "Duyurular" };
 
 export default async function ParentAnnouncementsPage() {
   const session = await requireAuth(["PARENT"]);
@@ -37,12 +38,16 @@ export default async function ParentAnnouncementsPage() {
   });
 
   return (
-    <DashboardShell title="Duyurular" description="Çocuğunla ilgili tüm duyurular">
+    <DashboardShell
+      eyebrow="Veli" title="Duyurular" description="Çocuğunla ilgili tüm duyurular">
       {announcements.length === 0 ? (
         <Card>
-          <CardContent className="p-8 text-center text-sm text-muted-foreground">
-            <Bell className="mx-auto mb-2 h-8 w-8 opacity-50" />
-            Henüz duyuru yok.
+          <CardContent className="p-0">
+            <EmptyState
+              icon={Bell}
+              title="Henüz duyuru yok"
+              description="Ajans ya da öğretmenler duyuru yayınladığında burada göreceksin."
+            />
           </CardContent>
         </Card>
       ) : (

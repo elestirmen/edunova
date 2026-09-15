@@ -40,6 +40,27 @@ npm run dev
 | Öğretmen | ogretmen@edunova.com | 123456 |
 | Yönetici | admin@edunova.com | 123456 |
 
+## Tasarım Sistemi
+
+Arayüz, logodaki mürekkep mavisi → turkuaz → yaprak yeşili geçişinden türetilen tek bir
+belirteç (token) katmanı üzerine kuruludur.
+
+- **Renk belirteçleri:** `src/app/globals.css` içinde açık/koyu tema için HSL değişkenleri
+  (`--primary`, `--card`, `--border`, `--shadow-color` …). Marka skalaları
+  (`brand`, `ocean`, `leaf`) `tailwind.config.ts` içinde tanımlıdır; doğrudan renk kodu
+  yazmak yerine bu belirteçler kullanılır.
+- **Tipografi:** Geist değişken yazı tipi `next/font/local` ile yerelden yüklenir
+  (ağ bağımlılığı yok). Finansal değerler `.tabular` sınıfıyla hizalanır.
+- **Yükseklik ve hareket:** Marka tonuna boyanmış gölge skalası (`shadow-xs … shadow-xl`,
+  `shadow-glow`) ve `ease-premium` geçiş eğrisi. `prefers-reduced-motion` desteklenir.
+- **Ortak bileşenler:** `src/components/ui/` — `Button`, `Card`, `Badge`, `Input`,
+  `Textarea`, `Select`, `Avatar`, `Progress`, `StatCard`, `SectionHeader`, `EmptyState`,
+  `Skeleton`, `WeeklyCalendar`. Yeni ekranlarda önce bu bileşenler kullanılmalıdır.
+- **Panel çatısı:** `DashboardShell` (yapışkan cam başlık + `eyebrow`/başlık/açıklama),
+  `Sidebar`, `PanelSkeleton`, `PanelError`.
+- **Tema:** Koyu tema `<html class="dark">` ile çalışır; hidrasyondan önce çalışan küçük
+  bir betik sayesinde açılışta tema titremesi olmaz.
+
 ## Teknoloji Stack
 
 - **Framework:** Next.js 14 (App Router)

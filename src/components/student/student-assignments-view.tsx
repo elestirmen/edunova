@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface Submission {
   id: string;
@@ -77,9 +78,12 @@ export function StudentAssignmentsView({
   if (assignments.length === 0) {
     return (
       <Card>
-        <CardContent className="p-8 text-center text-sm text-muted-foreground">
-          <ClipboardList className="mx-auto mb-2 h-8 w-8 opacity-50" />
-          Henüz ödevin yok.
+        <CardContent className="p-0">
+          <EmptyState
+            icon={ClipboardList}
+            title="Henüz ödevin yok"
+            description="Öğretmenin ödev verdiğinde burada görünecek ve buradan teslim edeceksin."
+          />
         </CardContent>
       </Card>
     );

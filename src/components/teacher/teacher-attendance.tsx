@@ -118,16 +118,16 @@ export function TeacherAttendance({ lessonSlots }: Props) {
       {notice && (
         <div
           className={cn(
-            "flex items-center justify-between rounded-lg border px-4 py-2.5 text-sm",
+            "flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-[13px] font-medium",
             notice.type === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300"
-              : "border-red-200 bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300"
+              ? "border-leaf-500/25 bg-leaf-500/10 text-leaf-700 dark:text-leaf-300 dark:bg-emerald-950/30 dark:text-emerald-300"
+              : "border-destructive/25 bg-destructive/10 text-destructive dark:bg-red-950/30 dark:text-red-300"
           )}
         >
           {notice.message}
           <button
             onClick={() => setNotice(null)}
-            className="ml-2 shrink-0 rounded p-0.5 hover:bg-black/5"
+            className="ml-2 shrink-0 rounded p-0.5 hover:bg-foreground/10"
           >
             <X className="h-3.5 w-3.5" />
           </button>

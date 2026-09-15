@@ -1,10 +1,15 @@
 import { requireAuth } from "@/lib/auth-guard";
 import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Avatar } from "@/components/ui/avatar";
+import { StatCard } from "@/components/ui/stat-card";
+import { SectionHeader } from "@/components/ui/section";
+import { EmptyState } from "@/components/ui/empty-state";
+import { CheckCircle2, Clock, Heart, NotebookPen, XCircle } from "lucide-react";
 import { formatDate, startOfWeek, endOfWeek, formatHours } from "@/lib/utils";
 
-export const metadata = { title: "Haftalık Özet | Edunova" };
+export const metadata = { title: "Haftalık Özet" };
 
 export default async function ParentWeeklySummaryPage() {
   const session = await requireAuth(["PARENT"]);
@@ -75,68 +80,104 @@ export default async function ParentWeeklySummaryPage() {
 
   return (
     <DashboardShell
+      eyebrow="Veli"
       title="Haftalık Özet"
-      description={`${formatDate(wkStart)} – ${formatDate(wkEnd)}`}
+      description={`${formatDate(wkStart)} – ${formatDate(wkEnd)} dönemi`}
     >
-      <div className="space-y-6">
-        {summaries.map((s) => (
-          <Card key={s.student.id}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">
-                {s.student.firstName} {s.student.lastName}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/30 p-3 text-center">
-                  <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
-                    {s.delivered}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Tamamlanan ders</p>
-                </div>
-                <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 p-3 text-center">
-                  <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">
-                    {s.missed}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Kaçırılan / iptal</p>
-                </div>
-                <div className="rounded-lg bg-blue-50 dark:bg-blue-950/30 p-3 text-center">
-                  <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                    {formatHours(s.hoursUsed)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Kullanılan saat</p>
+      {summaries.length === 0 ? (
+        <Card>
+          <CardContent className="p-0">
+            <EmptyState
+              icon={Heart}
+              title="Bağlı öğrenci bulunmuyor"
+              description="Hesabın bir öğrenciyle eşleştirildiğinde haftalık özet burada görünecek."
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-8">
+          {summaries.map((s) => (
+            <section key={s.student.id} className="space-y-4">
+              <div className="flex items-center gap-3 rounded-2xl border bg-card p-4 shadow-sm">
+                <Avatar
+                  firstName={s.student.firstName}
+                  lastName={s.student.lastName}
+                  size="md"
+                />
+                <div className="min-w-0 flex-1">
+                  <h2 className="truncate text-[15px] font-semibold tracking-tight">
+                    {s.student.firstName} {s.student.lastName}
+                  </h2>
+                  <p className="text-xs text-muted-foreground">Bu haftanın özeti</p>
                 </div>
               </div>
 
-              {s.notes.length > 0 && (
-                <div>
-                  <p className="mb-2 text-sm font-semibold">Bu haftaki ders notları</p>
-                  <div className="space-y-2">
-                    {s.notes.map((occ) => (
-                      <div
-                        key={occ.id}
-                        className="rounded-lg bg-muted/40 p-2.5"
-                      >
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium">
-                            {occ.lessonSlot.course.name}
+              <div className="stagger grid gap-4 sm:grid-cols-3">
+                <StatCard
+                  icon={CheckCircle2}
+                  tone="leaf"
+                  label="Tamamlanan ders"
+                  value={s.delivered}
+                  hint="Katılım sağlanan"
+                />
+                <StatCard
+                  icon={XCircle}
+                  tone={s.missed > 0 ? "amber" : "neutral"}
+                  label="Kaçırılan / iptal"
+                  value={s.missed}
+                  hint="Bu hafta"
+                />
+                <StatCard
+                  icon={Clock}
+                  tone="ocean"
+                  label="Kullanılan saat"
+                  value={formatHours(s.hoursUsed)}
+                  hint="Bakiyeden düşen"
+                />
+              </div>
+
+              <Card>
+                <CardHeader className="pb-4">
+                  <SectionHeader
+                    icon={NotebookPen}
+                    title="Bu Haftaki Ders Notları"
+                    description="Öğretmenlerin ders sonrası notları"
+                  />
+                </CardHeader>
+                <CardContent>
+                  {s.notes.length === 0 ? (
+                    <p className="py-6 text-center text-xs text-muted-foreground">
+                      Bu hafta için ders notu girilmemiş.
+                    </p>
+                  ) : (
+                    <div className="space-y-2.5">
+                      {s.notes.map((occ) => (
+                        <div
+                          key={occ.id}
+                          className="rounded-xl border-l-2 bg-muted/40 px-3.5 py-3"
+                          style={{ borderLeftColor: occ.lessonSlot.course.color }}
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="truncate text-[13px] font-semibold">
+                              {occ.lessonSlot.course.name}
+                            </p>
+                            <span className="tabular shrink-0 text-[11px] text-muted-foreground">
+                              {formatDate(occ.date)}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+                            {occ.teacherNote}
                           </p>
-                          <span className="text-[11px] text-muted-foreground">
-                            {formatDate(occ.date)}
-                          </span>
                         </div>
-                        <p className="mt-0.5 text-sm text-muted-foreground">
-                          {occ.teacherNote}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </section>
+          ))}
+        </div>
+      )}
     </DashboardShell>
   );
 }

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Megaphone, Globe, BookOpen } from "lucide-react";
 
-export const metadata = { title: "Duyurular | Edunova" };
+export const metadata = { title: "Duyurular" };
 
 export default async function StudentAnnouncementsPage() {
   const session = await requireAuth(["STUDENT"]);
@@ -31,7 +31,8 @@ export default async function StudentAnnouncementsPage() {
 
   if (announcements.length === 0) {
     return (
-      <DashboardShell title="Duyurular" description="Derslerinden ve sistemden gelen duyurular">
+      <DashboardShell
+      eyebrow="Öğrenci" title="Duyurular" description="Derslerinden ve sistemden gelen duyurular">
         <EmptyState
           icon={Megaphone}
           title="Henüz duyuru yok"

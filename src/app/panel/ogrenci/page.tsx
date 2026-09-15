@@ -8,26 +8,32 @@ import {
   formatTime,
   getGreeting,
   formatHours,
+  formatLongDate,
+  getMotivationalMessage,
 } from "@/lib/utils";
 import { getBalancesForStudent } from "@/lib/services/ledger";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { StatCard } from "@/components/ui/stat-card";
+import { SectionHeader } from "@/components/ui/section";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   ArrowRight,
   Bell,
   BookOpen,
-  Calendar,
+  CalendarDays,
   ClipboardList,
   Clock,
   Flame,
   MapPin,
   Target,
+  Video,
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = { title: "Ana Sayfa | Edunova" };
+export const metadata = { title: "Ana Sayfa" };
 
 export default async function StudentDashboard() {
   const session = await requireAuth(["STUDENT"]);
@@ -109,50 +115,67 @@ export default async function StudentDashboard() {
 
   return (
     <DashboardShell
+      eyebrow={formatLongDate()}
       title={`${greetingText}, ${session.user.firstName}`}
-      description="Bugün hangi derslerin var?"
+      description={getMotivationalMessage(currentStreak)}
     >
       <div className="space-y-6">
-        {/* ÖNCE: BUGÜN NE VAR? — En kritik bilgi en üstte */}
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-primary" />
-                Bugün ({getDayLabel(today)})
-              </CardTitle>
-              <Badge variant="secondary" className="text-xs">
-                {todayLessons.length} ders
-              </Badge>
-            </div>
+        {/* ---------- Bugünün dersleri ---------- */}
+        <Card variant="brand" className="overflow-hidden">
+          <CardHeader className="pb-4">
+            <SectionHeader
+              icon={CalendarDays}
+              title={`Bugün — ${getDayLabel(today)}`}
+              description={
+                todayLessons.length > 0
+                  ? "Derse panelden tek tıkla katıl"
+                  : "Bugün programında ders görünmüyor"
+              }
+              action={
+                <Badge variant={todayLessons.length > 0 ? "default" : "muted"}>
+                  {todayLessons.length} ders
+                </Badge>
+              }
+              href="/panel/ogrenci/program"
+              hrefLabel="Program"
+            />
           </CardHeader>
           <CardContent>
             {todayLessons.length === 0 ? (
-              <div className="rounded-lg bg-muted/40 py-6 text-center">
-                <Calendar className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium">Bugün dersin yok.</p>
-                <p className="text-xs text-muted-foreground">
-                  Kendine vakit ayır veya tekrar yap.
-                </p>
-              </div>
+              <EmptyState
+                icon={CalendarDays}
+                title="Bugün dersin yok"
+                description="Kendine vakit ayır ya da geçmiş konuların tekrarını yap."
+                className="py-8"
+              />
             ) : (
-              <div className="space-y-2">
+              <div className="grid gap-2.5 sm:grid-cols-2">
                 {todayLessons.map((lesson) => (
                   <div
                     key={lesson.id}
-                    className="flex items-center gap-3 rounded-lg border p-3"
+                    className="group relative flex items-center gap-3 overflow-hidden rounded-xl border bg-card p-3.5 shadow-xs transition-all duration-200 ease-premium hover:-translate-y-0.5 hover:shadow-md"
                   >
                     <span
-                      className="h-10 w-1 rounded-full"
+                      className="absolute inset-y-0 left-0 w-1"
                       style={{ backgroundColor: lesson.course.color }}
                     />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium">{lesson.course.name}</p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        {formatTime(lesson.startTime)} - {formatTime(lesson.endTime)}
+                    <span
+                      className="ml-1.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[11px] font-bold text-white shadow-sm"
+                      style={{ backgroundColor: lesson.course.color }}
+                    >
+                      {lesson.course.code.slice(0, 2).toUpperCase()}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-semibold">
+                        {lesson.course.name}
+                      </p>
+                      <div className="tabular mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {formatTime(lesson.startTime)}–{formatTime(lesson.endTime)}
+                        </span>
                         {lesson.room && (
-                          <span className="inline-flex items-center gap-0.5">
+                          <span className="inline-flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
                             {lesson.room}
                           </span>
@@ -164,9 +187,10 @@ export default async function StudentDashboard() {
                         href={lesson.recurringMeetingUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-xs font-medium text-primary hover:underline"
+                        className="inline-flex shrink-0 items-center gap-1.5 rounded-lg brand-surface px-3 py-2 text-[11px] font-semibold text-primary-foreground shadow-glow transition-transform duration-200 ease-premium hover:scale-[1.03]"
                       >
-                        Katıl →
+                        <Video className="h-3.5 w-3.5" />
+                        Katıl
                       </a>
                     )}
                   </div>
@@ -176,112 +200,125 @@ export default async function StudentDashboard() {
           </CardContent>
         </Card>
 
+        {/* ---------- Bakiye uyarısı ---------- */}
         {lowBalance && (
-          <Card className="border-amber-300 bg-amber-50 dark:bg-amber-950/30">
-            <CardContent className="flex items-center gap-3 p-3 text-sm">
-              <Wallet className="h-5 w-5 text-amber-600 shrink-0" />
-              <p>
-                Derslerinden birinin bakiyesi düşük (
-                <strong>{formatHours(lowBalance.balance)}</strong>). Yöneticinle iletişime
-                geçip yenilemen iyi olabilir.
+          <div className="flex items-start gap-3 rounded-2xl border border-amber-500/25 bg-amber-500/[0.08] p-4">
+            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-300">
+              <Wallet className="h-4 w-4" />
+            </span>
+            <div className="text-[13px] leading-relaxed">
+              <p className="font-semibold">Ders bakiyen azalıyor</p>
+              <p className="text-muted-foreground">
+                Derslerinden birinde <strong>{formatHours(lowBalance.balance)}</strong>{" "}
+                kaldı. Yöneticinle iletişime geçip paketini yenilemen iyi olur.
               </p>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
-        {/* Motivasyon şeridi (sade hâl) */}
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Card>
-            <CardContent className="flex items-center gap-3 p-3">
-              <div className="rounded-lg bg-orange-100 p-2 dark:bg-orange-950/40">
-                <Flame className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-              </div>
-              <div>
-                <p className="text-xl font-bold leading-none">{currentStreak}</p>
-                <p className="text-[11px] text-muted-foreground">Günlük seri</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="flex items-center gap-3 p-3">
-              <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-950/40">
-                <Target className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-baseline gap-1">
-                  <p className="text-xl font-bold leading-none">{weeklyProgress}</p>
-                  <p className="text-xs text-muted-foreground">/{weeklyTarget} hedef</p>
-                </div>
+        {/* ---------- Motivasyon şeridi ---------- */}
+        <div className="stagger grid gap-4 sm:grid-cols-3">
+          <StatCard
+            icon={Flame}
+            tone="amber"
+            label="Günlük seri"
+            value={currentStreak}
+            hint={currentStreak > 0 ? "Gün üst üste" : "Bugün başlat"}
+            href="/panel/ogrenci/ilerleme"
+            linkLabel="İlerlemem"
+          />
+          <div className="group relative overflow-hidden rounded-2xl border bg-card p-4 shadow-sm sm:p-5">
+            <div className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full bg-gradient-to-br from-leaf-500/12 to-transparent blur-2xl" />
+            <div className="relative flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                  Haftalık hedef
+                </p>
+                <p className="tabular mt-2 flex items-baseline gap-1 font-bold leading-none tracking-tight">
+                  <span className="text-[26px]">{weeklyProgress}</span>
+                  <span className="text-sm text-muted-foreground">/ {weeklyTarget}</span>
+                </p>
                 <Progress
                   value={weeklyProgress}
                   max={weeklyTarget}
                   size="sm"
-                  className="mt-1"
+                  className="mt-3"
                 />
               </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="flex items-center gap-3 p-3">
-              <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-950/40">
-                <BookOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-xl font-bold leading-none">{totalLessons}</p>
-                <p className="text-[11px] text-muted-foreground">Toplam ders</p>
-              </div>
-            </CardContent>
-          </Card>
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-leaf-500/12 text-leaf-700 ring-1 ring-inset ring-leaf-500/20 dark:bg-leaf-400/15 dark:text-leaf-300">
+                <Target className="h-[18px] w-[18px]" />
+              </span>
+            </div>
+          </div>
+          <StatCard
+            icon={BookOpen}
+            tone="ocean"
+            label="Toplam ders"
+            value={totalLessons}
+            hint="Tamamlanan ders sayısı"
+          />
         </div>
 
-        {/* Bakiyeler + Derslerim + Bekleyen ödevler */}
-        <div className="grid gap-4 lg:grid-cols-3">
+        {/* ---------- Dersler + yan sütun ---------- */}
+        <div className="grid gap-5 lg:grid-cols-3">
           <Card className="lg:col-span-2">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-primary" />
-                  Derslerim
-                </CardTitle>
-                <Link
-                  href="/panel/ogrenci/dersler"
-                  className="flex items-center gap-1 text-xs text-primary hover:underline"
-                >
-                  Tümünü gör <ArrowRight className="h-3 w-3" />
-                </Link>
-              </div>
+            <CardHeader className="pb-4">
+              <SectionHeader
+                icon={BookOpen}
+                title="Derslerim"
+                description="Kayıtlı olduğun dersler ve kalan saatlerin"
+                href="/panel/ogrenci/dersler"
+                hrefLabel="Tümünü gör"
+              />
             </CardHeader>
             <CardContent>
               {enrollments.length === 0 ? (
-                <p className="py-6 text-center text-sm text-muted-foreground">
-                  Henüz kayıtlı dersin yok.
-                </p>
+                <EmptyState
+                  icon={BookOpen}
+                  title="Henüz kayıtlı dersin yok"
+                  description="Yöneticin seni bir derse eklediğinde burada görünecek."
+                />
               ) : (
-                <div className="grid gap-2 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2">
                   {enrollments.slice(0, 6).map((e) => {
-                    const balance = balances.find(
-                      (b) => b.courseId === e.course.id
-                    );
+                    const balance = balances.find((b) => b.courseId === e.course.id);
+                    const remaining = balance?.balance ?? 0;
                     return (
-                      <div key={e.id} className="rounded-lg border p-3">
-                        <div className="mb-1.5 flex items-center gap-2">
+                      <div
+                        key={e.id}
+                        className="group rounded-xl border bg-card p-3.5 transition-all duration-200 ease-premium hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md"
+                      >
+                        <div className="mb-2 flex items-center gap-2.5">
                           <span
-                            className="h-7 w-7 rounded-md flex items-center justify-center text-white text-[10px] font-bold"
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[10px] font-bold text-white shadow-xs"
                             style={{ backgroundColor: e.course.color }}
                           >
-                            {e.course.code.slice(0, 2)}
+                            {e.course.code.slice(0, 2).toUpperCase()}
                           </span>
-                          <span className="font-medium text-sm truncate">
-                            {e.course.name}
-                          </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-[13px] font-semibold leading-tight">
+                              {e.course.name}
+                            </p>
+                            <p className="truncate text-[11px] text-muted-foreground">
+                              {e.course.teacher.firstName} {e.course.teacher.lastName}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-[11px] text-muted-foreground truncate">
-                          {e.course.teacher.firstName} {e.course.teacher.lastName}
-                        </p>
-                        {balance && balance.balance > 0 && (
-                          <p className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400">
-                            {formatHours(balance.balance)} kaldı
-                          </p>
+                        {remaining > 0 && (
+                          <div className="flex items-center justify-between rounded-lg bg-muted/60 px-2.5 py-1.5">
+                            <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                              Kalan
+                            </span>
+                            <span
+                              className={`tabular text-[11px] font-bold ${
+                                remaining <= 3
+                                  ? "text-amber-600 dark:text-amber-400"
+                                  : "text-leaf-700 dark:text-leaf-300"
+                              }`}
+                            >
+                              {formatHours(remaining)}
+                            </span>
+                          </div>
                         )}
                       </div>
                     );
@@ -291,27 +328,32 @@ export default async function StudentDashboard() {
             </CardContent>
           </Card>
 
-          <div className="space-y-4">
+          <div className="space-y-5">
             {pendingAssignments.length > 0 && (
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <ClipboardList className="h-4 w-4 text-primary" />
-                    Bekleyen Ödevler
-                  </CardTitle>
+                <CardHeader className="pb-4">
+                  <SectionHeader
+                    icon={ClipboardList}
+                    title="Bekleyen Ödevler"
+                    href="/panel/ogrenci/odevler"
+                  />
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {pendingAssignments.map((a) => (
                     <Link
                       key={a.id}
                       href="/panel/ogrenci/odevler"
-                      className="block rounded-lg bg-muted/40 p-2.5 hover:bg-accent"
+                      className="group flex items-center gap-2.5 rounded-xl border border-transparent bg-muted/40 p-3 transition-all duration-200 ease-premium hover:border-border hover:bg-card hover:shadow-sm"
                     >
-                      <p className="text-sm font-medium truncate">{a.title}</p>
-                      <p className="text-[11px] text-muted-foreground truncate">
-                        {a.course.name}
-                        {a.dueDate && ` • Son: ${new Date(a.dueDate).toLocaleDateString("tr-TR")}`}
-                      </p>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[13px] font-semibold">{a.title}</p>
+                        <p className="truncate text-[11px] text-muted-foreground">
+                          {a.course.name}
+                          {a.dueDate &&
+                            ` • Son: ${new Date(a.dueDate).toLocaleDateString("tr-TR")}`}
+                        </p>
+                      </div>
+                      <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/40 transition-transform duration-200 ease-premium group-hover:translate-x-0.5" />
                     </Link>
                   ))}
                 </CardContent>
@@ -319,32 +361,32 @@ export default async function StudentDashboard() {
             )}
 
             <Card>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Bell className="h-4 w-4 text-primary" />
-                    Duyurular
-                  </CardTitle>
-                  <Link
-                    href="/panel/ogrenci/duyurular"
-                    className="text-xs text-primary hover:underline"
-                  >
-                    Tümü
-                  </Link>
-                </div>
+              <CardHeader className="pb-4">
+                <SectionHeader
+                  icon={Bell}
+                  title="Duyurular"
+                  href="/panel/ogrenci/duyurular"
+                />
               </CardHeader>
               <CardContent>
                 {announcements.length === 0 ? (
-                  <p className="py-3 text-center text-xs text-muted-foreground">
-                    Duyuru yok.
+                  <p className="py-6 text-center text-xs text-muted-foreground">
+                    Şu an duyuru yok.
                   </p>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {announcements.map((ann) => (
-                      <div key={ann.id} className="rounded-lg bg-muted/40 p-2.5">
-                        <p className="text-sm font-medium truncate">{ann.title}</p>
-                        <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">
+                      <div
+                        key={ann.id}
+                        className="rounded-xl border-l-2 border-primary/40 bg-muted/40 px-3 py-2.5"
+                      >
+                        <p className="truncate text-[13px] font-semibold">{ann.title}</p>
+                        <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">
                           {ann.content}
+                        </p>
+                        <p className="mt-1.5 text-[10px] text-muted-foreground/70">
+                          {ann.course?.name ?? "Genel"} • {ann.author.firstName}{" "}
+                          {ann.author.lastName}
                         </p>
                       </div>
                     ))}

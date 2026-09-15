@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { TeacherAttendance } from "@/components/teacher/teacher-attendance";
 
-export const metadata = { title: "Yoklama | Edunova" };
+export const metadata = { title: "Yoklama" };
 
 export default async function TeacherAttendancePage() {
   const session = await requireAuth(["TEACHER"]);
@@ -47,7 +47,8 @@ export default async function TeacherAttendancePage() {
   }));
 
   return (
-    <DashboardShell title="Yoklama" description="Ders yoklaması alın">
+    <DashboardShell
+      eyebrow="Öğretmen" title="Yoklama" description="Ders yoklaması alın">
       <TeacherAttendance lessonSlots={slots} />
     </DashboardShell>
   );

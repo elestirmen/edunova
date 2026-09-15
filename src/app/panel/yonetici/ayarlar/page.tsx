@@ -4,13 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Settings, Database, Shield, Globe } from "lucide-react";
 
-export const metadata = { title: "Ayarlar | Edunova" };
+export const metadata = { title: "Ayarlar" };
 
 export default async function AdminSettingsPage() {
   await requireAuth(["ADMIN"]);
 
   return (
     <DashboardShell
+      eyebrow="Sistem"
       title="Sistem Ayarları"
       description="Platform yapılandırması"
     >

@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
+import { selectClassName } from "@/components/ui/select";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface Course {
   id: string;
@@ -39,8 +41,6 @@ interface Assignment {
   submissions: Submission[];
 }
 
-const selectClassName =
-  "flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm";
 
 const statusLabel = {
   ASSIGNED: { label: "Atandı", variant: "outline" as const },
@@ -207,9 +207,12 @@ export function TeacherAssignmentsManager({
       <div className="space-y-3">
         {assignments.length === 0 ? (
           <Card>
-            <CardContent className="p-8 text-center text-sm text-muted-foreground">
-              <ClipboardList className="mx-auto mb-2 h-8 w-8 opacity-50" />
-              Henüz ödev oluşturmadın.
+            <CardContent className="p-0">
+              <EmptyState
+                icon={ClipboardList}
+                title="Henüz ödev yok"
+                description="Yukarıdaki formdan sınıfına ilk ödevini oluşturabilirsin."
+              />
             </CardContent>
           </Card>
         ) : (

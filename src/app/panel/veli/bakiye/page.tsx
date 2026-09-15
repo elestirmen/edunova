@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate, formatHours } from "@/lib/utils";
 
-export const metadata = { title: "Bakiye & Paketler | Edunova" };
+export const metadata = { title: "Bakiye & Paketler" };
 
 export default async function ParentBalancePage() {
   const session = await requireAuth(["PARENT"]);
@@ -55,7 +55,8 @@ export default async function ParentBalancePage() {
   };
 
   return (
-    <DashboardShell title="Bakiye & Paketler" description="Tüm geçmiş ve mevcut bakiyeler">
+    <DashboardShell
+      eyebrow="Veli" title="Bakiye & Paketler" description="Tüm geçmiş ve mevcut bakiyeler">
       <div className="space-y-6">
         {data.map((d) => (
           <div key={d.student?.firstName} className="space-y-3">

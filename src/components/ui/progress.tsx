@@ -18,32 +18,38 @@ export function Progress({
   className,
   ...props
 }: ProgressProps) {
-  const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
+  const safeMax = max > 0 ? max : 100;
+  const percentage = Math.min(Math.max((value / safeMax) * 100, 0), 100);
 
   const sizeClasses = {
     sm: "h-1.5",
-    md: "h-3",
-    lg: "h-4",
+    md: "h-2.5",
+    lg: "h-3.5",
   };
 
   return (
     <div className={cn("w-full", className)} {...props}>
       <div
         className={cn(
-          "w-full overflow-hidden rounded-full bg-secondary",
+          "w-full overflow-hidden rounded-full bg-muted ring-1 ring-inset ring-border/60",
           sizeClasses[size]
         )}
+        role="progressbar"
+        aria-valuenow={Math.round(percentage)}
+        aria-valuemin={0}
+        aria-valuemax={100}
       >
         <div
           className={cn(
-            "h-full rounded-full transition-all duration-700 ease-out",
-            color || "bg-gradient-to-r from-teal-500 to-emerald-500"
+            "h-full rounded-full shadow-[0_0_12px_-2px_hsl(var(--primary)/0.6)] transition-all duration-700 ease-premium",
+            color ||
+              "bg-[linear-gradient(90deg,hsl(198_52%_44%),hsl(176_50%_42%)_55%,hsl(148_48%_46%))]"
           )}
           style={{ width: `${percentage}%` }}
         />
       </div>
       {showLabel && (
-        <p className="mt-1 text-right text-xs font-medium text-muted-foreground">
+        <p className="tabular mt-1.5 text-right text-xs font-semibold text-muted-foreground">
           {Math.round(percentage)}%
         </p>
       )}

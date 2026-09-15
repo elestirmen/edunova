@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { StudentGoalsManager } from "@/components/student/student-goals-manager";
 
-export const metadata = { title: "Hedeflerim | Edunova" };
+export const metadata = { title: "Hedeflerim" };
 
 export default async function StudentGoalsPage() {
   const session = await requireAuth(["STUDENT"]);
@@ -17,7 +17,8 @@ export default async function StudentGoalsPage() {
   const completed = goals.filter((g) => g.isCompleted);
 
   return (
-    <DashboardShell title="Hedeflerim" description="Kendi haftalık hedefini belirle">
+    <DashboardShell
+      eyebrow="Öğrenci" title="Hedeflerim" description="Kendi haftalık hedefini belirle">
       <StudentGoalsManager
         active={
           active

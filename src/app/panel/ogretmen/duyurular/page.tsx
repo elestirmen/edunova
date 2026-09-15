@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { BookOpen, Globe, Megaphone, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { selectClassName } from "@/components/ui/select";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface Announcement {
   id: string;
@@ -87,15 +89,15 @@ export default function TeacherAnnouncementsPage() {
     }
   }
 
-  const selectClassName = "flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
   return (
-    <DashboardShell title="Duyurular" description="Duyurularınız ve sistem duyuruları">
+    <DashboardShell
+      eyebrow="Öğretmen" title="Duyurular" description="Duyurularınız ve sistem duyuruları">
       <div className="space-y-6">
         {notice && (
-          <div className={cn("flex items-center justify-between rounded-lg border px-4 py-2.5 text-sm", notice.type === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700")}>
+          <div className={cn("flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-[13px] font-medium", notice.type === "success" ? "border-leaf-500/25 bg-leaf-500/10 text-leaf-700 dark:text-leaf-300" : "border-destructive/25 bg-destructive/10 text-destructive")}>
             {notice.message}
-            <button onClick={() => setNotice(null)} className="ml-2 shrink-0 rounded p-0.5 hover:bg-black/5"><X className="h-3.5 w-3.5" /></button>
+            <button onClick={() => setNotice(null)} className="ml-2 shrink-0 rounded p-0.5 hover:bg-foreground/10"><X className="h-3.5 w-3.5" /></button>
           </div>
         )}
 
@@ -150,10 +152,11 @@ export default function TeacherAnnouncementsPage() {
         {loading ? (
           <div className="py-12 text-center text-sm text-muted-foreground">Yükleniyor...</div>
         ) : announcements.length === 0 ? (
-          <div className="py-12 text-center">
-            <Megaphone className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Henüz duyuru yok.</p>
-          </div>
+          <EmptyState
+            icon={Megaphone}
+            title="Henüz duyuru yok"
+            description="Derslerine dair bilgilendirmeleri buradan yayınlayabilirsin."
+          />
         ) : (
           <div className="space-y-3">
             {announcements.map((ann) => (

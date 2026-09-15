@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { AdminTopicsManager } from "@/components/admin/admin-topics-manager";
 
-export const metadata = { title: "Müfredat | Edunova" };
+export const metadata = { title: "Müfredat" };
 
 export default async function AdminTopicsPage() {
   await requireAuth(["ADMIN"]);
@@ -18,7 +18,8 @@ export default async function AdminTopicsPage() {
     }),
   ]);
   return (
-    <DashboardShell title="Müfredat" description="Ders bazında konu ağacı">
+    <DashboardShell
+      eyebrow="Eğitim" title="Müfredat" description="Ders bazında konu ağacı">
       <AdminTopicsManager courses={courses} topics={topics.map((t) => ({
         id: t.id,
         courseId: t.courseId,

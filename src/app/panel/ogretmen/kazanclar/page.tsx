@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Coins, TrendingUp, Wallet, CheckCircle2 } from "lucide-react";
 import { formatCurrency, formatDate, formatHours, startOfMonth, endOfMonth } from "@/lib/utils";
+import { StatCard } from "@/components/ui/stat-card";
 
-export const metadata = { title: "Kazançlarım | Edunova" };
+export const metadata = { title: "Kazançlarım" };
 
 export default async function TeacherEarningsPage() {
   const session = await requireAuth(["TEACHER"]);
@@ -43,52 +44,34 @@ export default async function TeacherEarningsPage() {
   const pendingTotal = pending.reduce((s, e) => s + Number(e.amount), 0);
 
   return (
-    <DashboardShell title="Kazançlarım" description="Aylık hakediş ve ödeme geçmişi">
+    <DashboardShell eyebrow="Finans" title="Kazançlarım" description="Aylık hakediş ve ödeme geçmişi">
       <div className="space-y-6">
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Wallet className="h-3.5 w-3.5" /> Bekleyen
-              </div>
-              <p className="mt-1 text-2xl font-bold text-amber-600">
-                {formatCurrency(pendingTotal)}
-              </p>
-              <p className="text-[11px] text-muted-foreground">
-                {pending.length} ders
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <TrendingUp className="h-3.5 w-3.5" /> Bu ay toplam
-              </div>
-              <p className="mt-1 text-2xl font-bold">
-                {formatCurrency(Number(monthEarnings._sum.amount ?? 0))}
-              </p>
-              <p className="text-[11px] text-muted-foreground">
-                {monthEarnings._count.id} ders •{" "}
-                {formatHours(Number(monthEarnings._sum.hours ?? 0))}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Coins className="h-3.5 w-3.5" /> Toplam ödenmiş
-              </div>
-              <p className="mt-1 text-2xl font-bold text-emerald-600">
-                {formatCurrency(
-                  payouts.filter((p) => p.paidAt).reduce((s, p) => s + Number(p.amount), 0)
-                )}
-              </p>
-              <p className="text-[11px] text-muted-foreground">
-                {payouts.filter((p) => p.paidAt).length} ödeme
-              </p>
-            </CardContent>
-          </Card>
+        <div className="stagger grid gap-4 sm:grid-cols-3">
+          <StatCard
+            icon={Wallet}
+            tone="amber"
+            label="Bekleyen hakediş"
+            value={formatCurrency(pendingTotal)}
+            hint={`${pending.length} ders ödeme bekliyor`}
+          />
+          <StatCard
+            icon={TrendingUp}
+            tone="brand"
+            label="Bu ay toplam"
+            value={formatCurrency(Number(monthEarnings._sum.amount ?? 0))}
+            hint={`${monthEarnings._count.id} ders • ${formatHours(Number(monthEarnings._sum.hours ?? 0))}`}
+          />
+          <StatCard
+            icon={Coins}
+            tone="leaf"
+            label="Toplam ödenmiş"
+            value={formatCurrency(
+              payouts.filter((p) => p.paidAt).reduce((s, p) => s + Number(p.amount), 0)
+            )}
+            hint={`${payouts.filter((p) => p.paidAt).length} ödeme yapıldı`}
+          />
         </div>
+
 
         <Card>
           <CardHeader className="pb-3">

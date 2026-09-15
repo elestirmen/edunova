@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { History } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
 
-export const metadata = { title: "Denetim Kayıtları | Edunova" };
+export const metadata = { title: "Denetim Kayıtları" };
 
 const actionLabels: Record<string, string> = {
   "lesson.deliver": "Ders teslim",
@@ -33,7 +33,8 @@ export default async function AdminAuditPage() {
   });
 
   return (
-    <DashboardShell title="Denetim Kayıtları" description="Sistem üzerinde gerçekleşen tüm önemli işlemler">
+    <DashboardShell
+      eyebrow="Analiz" title="Denetim Kayıtları" description="Sistem üzerinde gerçekleşen tüm önemli işlemler">
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">

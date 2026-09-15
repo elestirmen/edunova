@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Heart, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { selectClassName } from "@/components/ui/select";
 
 interface Person {
   id: string;
@@ -26,8 +27,6 @@ interface Props {
   links: Link[];
 }
 
-const selectClassName =
-  "flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm";
 
 export function AdminParentsManager({ parents, students, links }: Props) {
   const router = useRouter();

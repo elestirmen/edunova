@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { StudentAssignmentsView } from "@/components/student/student-assignments-view";
 
-export const metadata = { title: "Ödevlerim | Edunova" };
+export const metadata = { title: "Ödevlerim" };
 
 export default async function StudentAssignmentsPage() {
   const session = await requireAuth(["STUDENT"]);
@@ -20,7 +20,8 @@ export default async function StudentAssignmentsPage() {
   });
 
   return (
-    <DashboardShell title="Ödevlerim" description="Sana atanan ödevleri görüntüle ve teslim et">
+    <DashboardShell
+      eyebrow="Öğrenci" title="Ödevlerim" description="Sana atanan ödevleri görüntüle ve teslim et">
       <StudentAssignmentsView
         assignments={assignments.map((a) => {
           const mine = a.submissions[0];

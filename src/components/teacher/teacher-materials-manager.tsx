@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
+import { selectClassName } from "@/components/ui/select";
 
 interface Course {
   id: string;
@@ -36,8 +37,6 @@ const typeIcons = {
   OTHER: FolderOpen,
 };
 
-const selectClassName =
-  "flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm";
 
 export function TeacherMaterialsManager({
   courses,

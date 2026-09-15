@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { TeacherMaterialsManager } from "@/components/teacher/teacher-materials-manager";
 
-export const metadata = { title: "Materyaller | Edunova" };
+export const metadata = { title: "Materyaller" };
 
 export default async function TeacherMaterialsPage() {
   const session = await requireAuth(["TEACHER"]);
@@ -25,7 +25,8 @@ export default async function TeacherMaterialsPage() {
   ]);
 
   return (
-    <DashboardShell title="Materyaller" description="Öğrencilerinle paylaştığın kaynaklar">
+    <DashboardShell
+      eyebrow="Öğretmen" title="Materyaller" description="Öğrencilerinle paylaştığın kaynaklar">
       <TeacherMaterialsManager
         courses={courses}
         materials={materials.map((m) => ({

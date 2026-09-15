@@ -4,50 +4,53 @@ import { cn, getInitials } from "@/lib/utils";
 interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   firstName: string;
   lastName: string;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
+  ring?: boolean;
 }
 
-const colorPairs = [
-  "bg-teal-100 text-teal-700",
-  "bg-emerald-100 text-emerald-700",
-  "bg-cyan-100 text-cyan-700",
-  "bg-green-100 text-green-700",
-  "bg-amber-100 text-amber-700",
-  "bg-sky-100 text-sky-700",
-  "bg-rose-100 text-rose-700",
-  "bg-indigo-100 text-indigo-700",
+/** Marka ailesinden türetilmiş degrade yüzeyler — isim bazlı deterministik seçim. */
+const gradients = [
+  "from-brand-400 to-brand-600",
+  "from-ocean-400 to-ocean-600",
+  "from-leaf-400 to-leaf-600",
+  "from-brand-400 to-ocean-600",
+  "from-leaf-400 to-brand-600",
+  "from-ocean-400 to-leaf-600",
+  "from-brand-500 to-leaf-500",
+  "from-ocean-500 to-brand-700",
 ];
 
-function getColorFromName(name: string): string {
+function gradientFromName(name: string): string {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return colorPairs[Math.abs(hash) % colorPairs.length];
+  return gradients[Math.abs(hash) % gradients.length];
 }
 
 export function Avatar({
   firstName,
   lastName,
   size = "md",
+  ring = true,
   className,
   ...props
 }: AvatarProps) {
   const sizeClasses = {
-    sm: "h-8 w-8 text-xs",
-    md: "h-10 w-10 text-sm",
-    lg: "h-14 w-14 text-lg",
-    xl: "h-20 w-20 text-2xl",
+    xs: "h-7 w-7 rounded-lg text-[10px]",
+    sm: "h-9 w-9 rounded-xl text-xs",
+    md: "h-10 w-10 rounded-xl text-sm",
+    lg: "h-14 w-14 rounded-2xl text-lg",
+    xl: "h-20 w-20 rounded-3xl text-2xl",
   };
-
-  const colorClass = getColorFromName(firstName + lastName);
 
   return (
     <div
       className={cn(
-        "inline-flex items-center justify-center rounded-2xl font-bold",
+        "inline-flex shrink-0 items-center justify-center bg-gradient-to-br font-bold tracking-tight text-white shadow-sm",
+        gradientFromName(firstName + lastName),
         sizeClasses[size],
-        colorClass,
+        ring && "ring-2 ring-white/70 dark:ring-white/10",
         className
       )}
       {...props}

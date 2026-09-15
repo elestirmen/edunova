@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, FileText, FolderOpen, Image as ImageIcon, Link2, Video } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
 
-export const metadata = { title: "Materyaller | Edunova" };
+export const metadata = { title: "Materyaller" };
 
 const typeIcons = {
   PDF: FileText,
@@ -48,12 +49,16 @@ export default async function StudentMaterialsPage() {
   }
 
   return (
-    <DashboardShell title="Materyaller" description="Öğretmenlerinin paylaştığı kaynaklar">
+    <DashboardShell
+      eyebrow="Öğrenci" title="Materyaller" description="Öğretmenlerinin paylaştığı kaynaklar">
       {materials.length === 0 ? (
         <Card>
-          <CardContent className="p-8 text-center text-sm text-muted-foreground">
-            <FolderOpen className="mx-auto mb-2 h-8 w-8 opacity-50" />
-            Henüz materyal paylaşılmamış.
+          <CardContent className="p-0">
+            <EmptyState
+              icon={FolderOpen}
+              title="Henüz materyal yok"
+              description="Öğretmenlerin ders materyali paylaştığında burada listelenecek."
+            />
           </CardContent>
         </Card>
       ) : (

@@ -7,34 +7,37 @@ type Theme = "light" | "dark";
 const ThemeContext = createContext<{
   theme: Theme;
   toggle: () => void;
-}>({ theme: "light", toggle: () => {} });
+  setTheme: (t: Theme) => void;
+}>({ theme: "light", toggle: () => {}, setTheme: () => {} });
 
 const STORAGE_KEY = "edunova-theme";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  // layout.tsx içindeki inline script temayı zaten <html>'e uyguladı;
+  // burada yalnızca mevcut durumu okuyup senkron tutuyoruz.
+  const [theme, setThemeState] = useState<Theme>("light");
 
   useEffect(() => {
-    const saved = (localStorage.getItem(STORAGE_KEY) as Theme | null) ?? null;
-    const systemDark =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initial: Theme = saved ?? (systemDark ? "dark" : "light");
-    setTheme(initial);
-    document.documentElement.classList.toggle("dark", initial === "dark");
+    const isDark = document.documentElement.classList.contains("dark");
+    setThemeState(isDark ? "dark" : "light");
   }, []);
 
-  function toggle() {
-    setTheme((prev) => {
-      const next = prev === "light" ? "dark" : "light";
+  function applyTheme(next: Theme) {
+    try {
       localStorage.setItem(STORAGE_KEY, next);
-      document.documentElement.classList.toggle("dark", next === "dark");
-      return next;
-    });
+    } catch {
+      /* özel sekmede localStorage kapalı olabilir */
+    }
+    document.documentElement.classList.toggle("dark", next === "dark");
+    setThemeState(next);
+  }
+
+  function toggle() {
+    applyTheme(document.documentElement.classList.contains("dark") ? "light" : "dark");
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggle }}>
+    <ThemeContext.Provider value={{ theme, toggle, setTheme: applyTheme }}>
       {children}
     </ThemeContext.Provider>
   );

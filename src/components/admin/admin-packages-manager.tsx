@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { cn, formatCurrency, formatDate, formatHours } from "@/lib/utils";
+import { selectClassName } from "@/components/ui/select";
 
 interface Student {
   id: string;
@@ -48,8 +49,6 @@ interface Props {
   balances: Balance[];
 }
 
-const selectClassName =
-  "flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm";
 
 export function AdminPackagesManager({
   students,

@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { AdminPayoutsManager } from "@/components/admin/admin-payouts-manager";
 
-export const metadata = { title: "Öğretmen Hakediş | Edunova" };
+export const metadata = { title: "Öğretmen Hakediş" };
 
 export default async function AdminPayoutsPage() {
   await requireAuth(["ADMIN"]);
@@ -47,6 +47,7 @@ export default async function AdminPayoutsPage() {
 
   return (
     <DashboardShell
+      eyebrow="Finans"
       title="Öğretmen Hakediş"
       description="Ödenmemiş hakedişleri görüntüle ve ödeme yap"
     >

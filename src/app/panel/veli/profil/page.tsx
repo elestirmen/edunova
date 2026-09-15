@@ -2,13 +2,14 @@ import { requireAuth } from "@/lib/auth-guard";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export const metadata = { title: "Profil | Edunova" };
+export const metadata = { title: "Profil" };
 
 export default async function ParentProfilePage() {
   const session = await requireAuth(["PARENT"]);
 
   return (
-    <DashboardShell title="Profil" description="Hesap bilgilerin">
+    <DashboardShell
+      eyebrow="Veli" title="Profil" description="Hesap bilgilerin">
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Hesap</CardTitle>

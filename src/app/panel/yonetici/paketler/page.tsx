@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { AdminPackagesManager } from "@/components/admin/admin-packages-manager";
 
-export const metadata = { title: "Saat Paketleri | Edunova" };
+export const metadata = { title: "Saat Paketleri" };
 
 export default async function AdminPackagesPage() {
   await requireAuth(["ADMIN"]);
@@ -50,6 +50,7 @@ export default async function AdminPackagesPage() {
 
   return (
     <DashboardShell
+      eyebrow="Finans"
       title="Saat Paketleri"
       description="Veliden paket alımı ve öğrenci bakiyeleri"
     >

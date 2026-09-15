@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { TeacherAssignmentsManager } from "@/components/teacher/teacher-assignments-manager";
 
-export const metadata = { title: "Ödevler | Edunova" };
+export const metadata = { title: "Ödevler" };
 
 export default async function TeacherAssignmentsPage() {
   const session = await requireAuth(["TEACHER"]);
@@ -29,7 +29,8 @@ export default async function TeacherAssignmentsPage() {
   ]);
 
   return (
-    <DashboardShell title="Ödevler" description="Ödev oluştur ve teslimleri değerlendir">
+    <DashboardShell
+      eyebrow="Öğretmen" title="Ödevler" description="Ödev oluştur ve teslimleri değerlendir">
       <TeacherAssignmentsManager
         courses={courses}
         assignments={assignments.map((a) => ({

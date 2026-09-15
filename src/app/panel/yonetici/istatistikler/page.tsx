@@ -4,8 +4,9 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Users, BookOpen, TrendingUp, Flame, GraduationCap } from "lucide-react";
+import { StatCard } from "@/components/ui/stat-card";
 
-export const metadata = { title: "İstatistikler | Edunova" };
+export const metadata = { title: "İstatistikler" };
 
 export default async function AdminStatsPage() {
   await requireAuth(["ADMIN"]);
@@ -46,40 +47,41 @@ export default async function AdminStatsPage() {
 
   return (
     <DashboardShell
+      eyebrow="Analiz"
       title="İstatistikler"
-      description="Sistem geneli istatistikler"
+      description="Sistem geneli performans göstergeleri"
     >
       <div className="space-y-6">
-        {/* Overview */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardContent className="p-5 text-center">
-              <GraduationCap className="mx-auto mb-2 h-8 w-8 text-blue-500" />
-              <p className="text-3xl font-bold">{totalStudents}</p>
-              <p className="text-sm text-muted-foreground">Toplam Öğrenci</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-5 text-center">
-              <Users className="mx-auto mb-2 h-8 w-8 text-green-500" />
-              <p className="text-3xl font-bold">{totalTeachers}</p>
-              <p className="text-sm text-muted-foreground">Toplam Öğretmen</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-5 text-center">
-              <BookOpen className="mx-auto mb-2 h-8 w-8 text-purple-500" />
-              <p className="text-3xl font-bold">{totalCourses}</p>
-              <p className="text-sm text-muted-foreground">Aktif Ders</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-5 text-center">
-              <TrendingUp className="mx-auto mb-2 h-8 w-8 text-amber-500" />
-              <p className="text-3xl font-bold">%{attendanceRate}</p>
-              <p className="text-sm text-muted-foreground">Katılım Oranı</p>
-            </CardContent>
-          </Card>
+        {/* Genel bakış */}
+        <div className="stagger grid gap-4 grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            icon={GraduationCap}
+            tone="ocean"
+            label="Toplam öğrenci"
+            value={totalStudents}
+            hint="Kayıtlı öğrenci"
+          />
+          <StatCard
+            icon={Users}
+            tone="brand"
+            label="Toplam öğretmen"
+            value={totalTeachers}
+            hint="Aktif eğitmen"
+          />
+          <StatCard
+            icon={BookOpen}
+            tone="violet"
+            label="Aktif ders"
+            value={totalCourses}
+            hint={`Ders başına ort. ${avgEnrollmentPerCourse} öğrenci`}
+          />
+          <StatCard
+            icon={TrendingUp}
+            tone="leaf"
+            label="Katılım oranı"
+            value={`%${attendanceRate}`}
+            hint={`${totalAttendances} yoklama kaydı`}
+          />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">

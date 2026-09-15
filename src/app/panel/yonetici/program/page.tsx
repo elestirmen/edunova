@@ -4,7 +4,7 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { AdminScheduleManager } from "@/components/admin/admin-schedule-manager";
 import type { CalendarSlot } from "@/components/ui/weekly-calendar";
 
-export const metadata = { title: "Ders Programı | Edunova" };
+export const metadata = { title: "Ders Programı" };
 
 export default async function AdminSchedulePage() {
   await requireAuth(["ADMIN"]);
@@ -74,6 +74,7 @@ export default async function AdminSchedulePage() {
 
   return (
     <DashboardShell
+      eyebrow="Eğitim"
       title="Ders Programı"
       description="Haftalık ders saatlerini oluşturun ve yönetin"
     >

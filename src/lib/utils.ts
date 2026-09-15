@@ -203,3 +203,32 @@ export function endOfDay(d: Date = new Date()): Date {
   r.setHours(23, 59, 59, 999);
   return r;
 }
+
+/** "az önce", "5 dk önce", "3 sa önce", "2 gün önce" — sonrasında tarih. */
+export function formatRelativeTime(d: Date | string): string {
+  const date = typeof d === "string" ? new Date(d) : d;
+  const diffMs = Date.now() - date.getTime();
+  const minutes = Math.floor(diffMs / 60000);
+
+  if (minutes < 1) return "az önce";
+  if (minutes < 60) return `${minutes} dk önce`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} sa önce`;
+
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "dün";
+  if (days < 7) return `${days} gün önce`;
+
+  return date.toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
+}
+
+/** "12 Eylül Cuma" gibi uzun okunabilir tarih. */
+export function formatLongDate(d: Date | string = new Date()): string {
+  const date = typeof d === "string" ? new Date(d) : d;
+  return date.toLocaleDateString("tr-TR", {
+    day: "numeric",
+    month: "long",
+    weekday: "long",
+  });
+}
