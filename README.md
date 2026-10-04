@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/icon.png" alt="edunova simgesi" width="120"></p>
+
 # Edunova — Eğitim Platformu
 
 Edunova, öğrencilerin organize, motive ve kontrol altında hissetmelerini sağlayan modern bir eğitim platformudur.
